@@ -34,6 +34,7 @@ eval/
 
 cache
 datasets
+models
 
 toy.py
 parallel_directories
