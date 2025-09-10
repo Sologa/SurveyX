@@ -6,7 +6,6 @@ numpy==2.3.0
 openai==1.88.0
 pandas==2.3.0
 PyYAML==6.0.2
-PyYAML==6.0.2
 rapidfuzz==3.13.0
 Requests==2.32.4
 scikit_learn==1.7.0
