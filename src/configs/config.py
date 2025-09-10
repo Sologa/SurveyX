@@ -9,10 +9,24 @@ BASE_DIR = FILE_PATH.parent.parent.parent
 # os.environ["HF_ENDPOINT"] = "https://hf-mirror.com" # Uncomment this line if you want to use a specific Hugging Face mirror
 # os.environ["HF_HOME"] = os.path.expanduser("~/hf_cache/")
 
-REMOTE_URL = "https://openai.com/v1/chat/completions"
-TOKEN = "your token here"
-DEFAULT_CHATAGENT_MODEL = "gpt-4o-mini"
-ADVANCED_CHATAGENT_MODEL = "gpt-4o"
+REMOTE_URL = "https://api.openai.com/v1/chat/completions"
+# Prefer environment variable to avoid hardcoding secrets
+TOKEN = os.getenv("OPENAI_API_KEY", "your token here")
+# DEFAULT_CHATAGENT_MODEL = "gpt-4o-mini"
+# ADVANCED_CHATAGENT_MODEL = "gpt-4o"
+DEFAULT_CHATAGENT_MODEL = "gpt-4.1-mini"
+ADVANCED_CHATAGENT_MODEL = "gpt-4.1-mini"
+
+# Responses API for reasoning models (o4/o3 families)
+RESPONSES_URL = "https://api.openai.com/v1/responses"
+# Models that should use Responses API and optionally support reasoning effort
+REASONING_MODELS = {
+    "o4",  # high‑end reasoning
+    "o4-mini",
+    "o3",
+}
+# Default reasoning effort for reasoning models; one of: low|medium|high
+DEFAULT_REASONING_EFFORT = os.getenv("OPENAI_REASONING_EFFORT", "medium")
 
 LOCAL_URL = "LOCAL_URL"
 LOCAL_LLM = "LOCAL_LLM"

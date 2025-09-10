@@ -14,7 +14,16 @@ logger = get_logger("src.modules.monitor.token_monitor")
 
 class TokenMonitor(Base):
     def __init__(self, task_id: str, label: str):
-        super().__init__(task_id)
+        # Base requires outputs/<task_id>/tmp_config.json. In testing or standalone
+        # usage this may be absent; fall back to minimal context instead of failing.
+        try:
+            super().__init__(task_id)
+        except Exception as e:
+            logger.debug(f"TokenMonitor init without tmp_config.json: {e}")
+            self.task_id = task_id
+            self.title = ""
+            self.key_words = ""
+            self.topic = ""
 
         # load LLM pricing file
         self._config_path = BASE_DIR / "src" / "configs" / "LLM.yaml"

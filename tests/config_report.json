@@ -1,0 +1,22 @@
+{
+  "timestamp": "1757495477.4086714",
+  "config_status": {
+    "config_file": true,
+    "REMOTE_URL": true,
+    "TOKEN": true,
+    "DEFAULT_CHATAGENT_MODEL": true,
+    "ADVANCED_CHATAGENT_MODEL": true,
+    "DEFAULT_EMBED_ONLINE_MODEL": true,
+    "EMBED_REMOTE_URL": true,
+    "EMBED_TOKEN": true,
+    "embed_model_hf": true,
+    "openai_api": true,
+    "dependencies": true
+  },
+  "system_info": {
+    "python_version": "3.11.13 | packaged by conda-forge | (main, Jun  4 2025, 14:52:34) [Clang 18.1.8 ]",
+    "working_directory": "/Users/xjp/Desktop/Survey with LLMs/Survey for survey:review with LLMs/SurveyX",
+    "platform": "darwin"
+  },
+  "recommendations": []
+}

@@ -21,11 +21,14 @@ from pathlib import Path
 
 from src.configs.config import (
     REMOTE_URL,
+    RESPONSES_URL,
     LOCAL_URL,
     TOKEN,
     BASE_DIR,
     DEFAULT_CHATAGENT_MODEL,
     CHAT_AGENT_WORKERS,
+    REASONING_MODELS,
+    DEFAULT_REASONING_EFFORT,
 )
 from src.configs.constants import OUTPUT_DIR
 
@@ -73,11 +76,17 @@ class ChatAgent:
         temperature: float = 0.5,
         debug: bool = False,
         model=DEFAULT_CHATAGENT_MODEL,
+        reasoning_effort: str | None = None,
     ) -> str:
-        """chat with remote LLM, return result."""
-        url = self.remote_url
+        """chat with remote LLM, return result.
+
+        If the target model is a reasoning model (configured in REASONING_MODELS),
+        the call will be routed to the Responses API and "reasoning.effort" will be
+        attached. For non-reasoning models, Chat Completions API is used.
+        """
         header = self.header
-        # text content
+
+        # Build messages for Chat Completions compatibility
         messages = [{"role": "user", "content": text_content}]
         # insert image urls ----
         if (
@@ -113,7 +122,43 @@ class ChatAgent:
             image_message_frame = {"role": "user", "content": local_image_frame}
             messages.append(image_message_frame)
 
-        payload = {"model": model, "messages": messages, "temperature": temperature}
+        # Determine whether to use Responses API (reasoning models)
+        is_reasoning_model = False
+        # direct match or family prefix match
+        if isinstance(model, str):
+            is_reasoning_model = model in REASONING_MODELS or any(
+                model.startswith(prefix) for prefix in REASONING_MODELS
+            )
+
+        if is_reasoning_model:
+            # Build Responses API payload
+            # Basic text input; image support can be added later if needed.
+            input_content = [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": text_content},
+                    ],
+                }
+            ]
+            payload = {
+                "model": model,
+                "input": input_content,
+                "temperature": temperature,
+            }
+            # Attach reasoning.effort only for reasoning models
+            effort = reasoning_effort or DEFAULT_REASONING_EFFORT
+            if effort in {"low", "medium", "high"}:
+                payload["reasoning"] = {"effort": effort}
+            url = RESPONSES_URL
+        else:
+            # Default: Chat Completions
+            payload = {
+                "model": model,
+                "messages": messages,
+                "temperature": temperature,
+            }
+            url = self.remote_url
 
         response = requests.post(url, headers=header, json=payload)
 
@@ -121,26 +166,58 @@ class ChatAgent:
             logger.error(
                 f"chat response code: {response.status_code}\n{response.text[:500]}, retrying..."
             )
-            status_code = 0 if response.status_code != 200 else 1
-
-            # 加了线程锁
+            # 记录一次失败请求
             self.update_record(
-                status_code=status_code,
+                status_code=0,
                 response_code=response.status_code,
                 request=text_content,
                 response=response.text,
             )
-            response.raise_for_status()
+            # 429 或 5xx 可重试，其餘 4xx 直接 fail-fast
+            if response.status_code == 429 or response.status_code >= 500:
+                response.raise_for_status()
+            else:
+                err_msg = None
+                try:
+                    err_obj = response.json()
+                    if isinstance(err_obj, dict):
+                        err_msg = err_obj.get("error", {}).get("message")
+                except Exception:
+                    pass
+                raise RuntimeError(
+                    f"LLM API error {response.status_code}: "
+                    + (err_msg or response.text[:200])
+                )
         try:
             res = json.loads(response.text)
-            res_text = res["choices"][0]["message"]["content"]
-            # 更新总开销
-            # token monitor
-            if self.token_monitor:
+            # Parse response for both APIs
+            res_text = None
+            # Responses API convenience field
+            if isinstance(res, dict) and "output_text" in res:
+                res_text = res["output_text"]
+            # Fallback: Chat Completions style
+            if res_text is None:
+                res_text = res.get("choices", [{}])[0].get("message", {}).get(
+                    "content", ""
+                )
+
+            # token monitor (support both usage schemas)
+            if self.token_monitor and isinstance(res, dict) and "usage" in res:
+                usage = res["usage"]
+                in_tokens = (
+                    usage.get("prompt_tokens")
+                    if "prompt_tokens" in usage
+                    else usage.get("input_tokens", 0)
+                )
+                out_tokens = (
+                    usage.get("completion_tokens")
+                    if "completion_tokens" in usage
+                    else usage.get("output_tokens", 0)
+                )
                 self.token_monitor.add_token(
                     model=model,
-                    input_tokens=res["usage"]["prompt_tokens"],
-                    output_tokens=res["usage"]["completion_tokens"],
+                    input_tokens=in_tokens or 0,
+                    output_tokens=out_tokens or 0,
                 )
         except Exception as e:
             res_text = f"Error: {e}"
