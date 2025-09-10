@@ -146,6 +146,51 @@
     - `--merge-local`（在本機直接合併 feature -> target 並推送）
     - `--delete`（與 `--merge-local` 搭配：刪除本地與遠端 feature 分支）
 
+## 6) sync_legacy_with_main.sh（用 main 蓋回 legacy）
+- 目的：
+  - 讓 `legacy-stable` 與 `main` 同步，可選三種模式：
+    - `fast-forward`：僅快轉（安全，若歷史已分歧會失敗）
+    - `merge`：建立一個合併提交，保留雙方歷史
+    - `hard-reset`：以 `main` 為準強制覆蓋 `legacy-stable`（會改寫歷史）
+- 使用：
+  - 快轉（若無分歧）：
+    ```bash
+    bash scripts/git/sync_legacy_with_main.sh --mode fast-forward --push
+    ```
+  - 合併：
+    ```bash
+    bash scripts/git/sync_legacy_with_main.sh --mode merge --push
+    ```
+  - 強制覆蓋（小心）：
+    ```bash
+    bash scripts/git/sync_legacy_with_main.sh --mode hard-reset --push
+    ```
+- 參數：
+  - `--legacy-branch <name>`（預設：`legacy-stable`）
+  - `--source-branch <name>`（預設：`main`）
+  - `--mode fast-forward|merge|hard-reset`（預設：`fast-forward`）
+  - `--remote <remote>`（預設：`origin`）
+  - `--push`（可選）
+
+## 7) sync_paths_to_branch.sh（只同步指定路徑）
+- 目的：
+  - 僅同步特定路徑（例如 `scripts/`、`docs/qa-notes/`）從某分支帶到目標分支，不影響其他檔案。
+- 使用：
+  - 從 `main` 同步 `scripts` 與 `docs/qa-notes` 到 `legacy-stable` 並推送：
+    ```bash
+    bash scripts/git/sync_paths_to_branch.sh \
+      --from main \
+      --to legacy-stable \
+      --paths "scripts docs/qa-notes" \
+      --push
+    ```
+- 參數：
+  - `--from <source-branch>`（預設：`main`）
+  - `--to <target-branch>`（預設：`legacy-stable`）
+  - `--paths "<空白分隔的多個路徑>"`（必填）
+  - `--remote <remote>`（預設：`origin`）
+  - `--push`（可選）
+
 ## 建議工作流（針對你目前狀態：main 與 legacy-stable 已同步）
 1) 開始新需求（切分支並建立 QA）
    ```bash
