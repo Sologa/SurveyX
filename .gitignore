@@ -23,6 +23,7 @@ __pycache__/
 # IDE
 .vscode/
 .idea/
+.cursor/
 
 # Scripts
 *.ipynb
