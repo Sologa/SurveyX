@@ -55,7 +55,7 @@ The open-source code in this repository only provides offline processing capabil
 
 ### 1. Prerequisites
 
-- Python 3.10+ (Anaconda recommended)
+- Python 3.11+ (Anaconda recommended)
 - All Python dependencies in `requirements.txt`
 - LaTeX environment (for PDF compilation):
 - You need to convert all your reference documents to Markdown (`.md`) format and put them together in a single folder before running the pipeline.
