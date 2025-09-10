@@ -2,7 +2,7 @@
 
 這個資料夾包含 Git 輔助腳本，用於：
 1) 建立並維護「舊版穩定線 + 最新開發線」的分支策略。
-2) 快速切出功能分支、改名、刪除分支。
+2) 一鍵建立功能分支、同步 main、收尾合併與清理。
 
 ## 1) init_branching.sh
 - 目的：
@@ -65,6 +65,38 @@
   - `--remote <remote>`（預設：`origin`）
   - `--push`（可選）
 
+## 2.1) start_feature.sh（建議使用，簡化版）
+- 目的：
+  - 從最新的 `main` 一鍵切出 `feat/<name>`，可選「自動建立當日 QA 檔」與「直接推送」。
+- 使用：
+  - 一鍵開始並建立 QA：
+    ```bash
+    bash scripts/git/start_feature.sh --name pdf-ingestion --seed-qa --push
+    ```
+  - 參數：
+    - `--name <feature-name>`（必填）
+    - `--prefix <prefix>`（預設：`feat`）
+    - `--remote <remote>`（預設：`origin`）
+    - `--seed-qa`（可選：自動產生 `docs/qa-notes/<date>-<name>-qa.md` 並提交）
+    - `--push`（可選）
+
+## 2.2) sync_with_main.sh
+- 目的：
+  - 將功能分支與最新 `main` 同步，支援 `merge` 或 `rebase`。
+- 使用：
+  - 合併（預設）：
+    ```bash
+    bash scripts/git/sync_with_main.sh --branch feat/pdf-ingestion --mode merge
+    ```
+  - 重置為 rebase：
+    ```bash
+    bash scripts/git/sync_with_main.sh --branch feat/pdf-ingestion --mode rebase
+    ```
+  - 參數：
+    - `--branch <name>`（不填則對當前分支操作）
+    - `--mode merge|rebase`（預設：merge）
+    - `--remote <remote>`（預設：origin）
+
 ## 3) rename_branch.sh
 - 目的：
   - 將某分支改名（包含目前所在分支也可改名），可選擇同步遠端：刪除舊遠端分支、推送新分支並設定追蹤。
@@ -95,9 +127,43 @@
     bash scripts/git/delete_branch.sh --name feat/newest_dev --remote-delete --remote origin
     ```
 
-## 建議工作流
-- 初始化：執行 `init_branching.sh` 產生 `legacy-stable` 與標籤。
-- 開發：於 `main`（或 `develop`）上用 `new_feature_branch.sh` 切出 `feat/*` 分支，完成後開 PR 合回。
-- 維護：在 `legacy-stable` 上僅做必要 hotfix，依需要發 `v0.1.x` 等標籤。
+## 5) finish_feature.sh（收尾）
+- 目的：
+  - 完成功能分支後，一鍵推送並提示開 PR；或直接在本機合併到 `main`、推送並刪除分支。
+- 使用：
+  - 推送並提示開 PR（預設）：
+    ```bash
+    bash scripts/git/finish_feature.sh --branch feat/pdf-ingestion
+    ```
+  - 在本機直接合併到 `main`，推送並刪除分支：
+    ```bash
+    bash scripts/git/finish_feature.sh --branch feat/pdf-ingestion --merge-local --delete
+    ```
+  - 參數：
+    - `--branch <feature-branch>`（不填則用當前分支）
+    - `--target <target-branch>`（預設：`main`）
+    - `--remote <remote>`（預設：`origin`）
+    - `--merge-local`（在本機直接合併 feature -> target 並推送）
+    - `--delete`（與 `--merge-local` 搭配：刪除本地與遠端 feature 分支）
+
+## 建議工作流（針對你目前狀態：main 與 legacy-stable 已同步）
+1) 開始新需求（切分支並建立 QA）
+   ```bash
+   bash scripts/git/start_feature.sh --name <feature-name> --seed-qa --push
+   ```
+2) 開發過程中定期同步 main
+   ```bash
+   bash scripts/git/sync_with_main.sh --mode merge   # merge 或 --mode rebase
+   ```
+3) 收尾：推送並開 PR（建議）
+   ```bash
+   bash scripts/git/finish_feature.sh   # 在 feature 分支執行，會 push 並提示 PR
+   ```
+   或者直接在本機合併（小型專案或你個人倉庫）：
+   ```bash
+   bash scripts/git/finish_feature.sh --merge-local --delete
+   ```
+4) 舊版維護（需要時）
+   - `legacy-stable` 僅做必要 hotfix，依需要發 `v0.1.x` 標籤。
 
 > 小提示：腳本不依賴可執行權限，可用 `bash scripts/...` 直接執行；若需改為直接執行可自行 `chmod +x`。
