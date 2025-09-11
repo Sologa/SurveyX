@@ -9,7 +9,7 @@
     "DEFAULT_EMBED_ONLINE_MODEL": true,
     "EMBED_REMOTE_URL": true,
     "EMBED_TOKEN": true,
-    "embed_model_hf": true,
+    "embed_model_path": true,
     "openai_api": true,
     "dependencies": true
   },
