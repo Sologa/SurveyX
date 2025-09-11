@@ -132,19 +132,44 @@ class ChatAgent:
 
         if is_reasoning_model:
             # Build Responses API payload
-            # Basic text input; image support can be added later if needed.
+            # Per OpenAI Responses API, content item types must be
+            # 'input_text' / 'input_image' (not plain 'text').
+            content_items = [
+                {"type": "input_text", "text": text_content},
+            ]
+            # Attach image inputs if provided
+            if (
+                image_urls is not None
+                and isinstance(image_urls, list)
+                and len(image_urls) > 0
+            ):
+                for url_ in image_urls:
+                    content_items.append({"type": "input_image", "image_url": url_})
+            if (
+                local_images is not None
+                and isinstance(local_images, list)
+                and len(local_images) > 0
+            ):
+                for local_image in local_images:
+                    local_encoded_image = encode_image(local_image)
+                    content_items.append(
+                        {
+                            "type": "input_image",
+                            "image_url": f"data:image/jpeg;base64,{local_encoded_image}",
+                        }
+                    )
+
             input_content = [
                 {
                     "role": "user",
-                    "content": [
-                        {"type": "text", "text": text_content},
-                    ],
+                    "content": content_items,
                 }
             ]
+            # Reasoning models must use temperature=1.0
             payload = {
                 "model": model,
                 "input": input_content,
-                "temperature": temperature,
+                "temperature": 1.0,
             }
             # Attach reasoning.effort only for reasoning models
             effort = reasoning_effort or DEFAULT_REASONING_EFFORT

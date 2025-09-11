@@ -5,6 +5,35 @@ import os
 FILE_PATH = Path(__file__).absolute()
 BASE_DIR = FILE_PATH.parent.parent.parent
 
+# Load .env on import: prefer python-dotenv; fallback to minimal parser.
+def _load_env_from_file(path: Path):
+    try:
+        from dotenv import load_dotenv  # optional dependency
+        load_dotenv(dotenv_path=path, override=False)
+        return
+    except Exception:
+        pass
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                k, v = line.split("=", 1)
+                k = k.strip()
+                # Strip surrounding quotes if present, without affecting inner content
+                v = v.strip().strip("'\"")
+                os.environ.setdefault(k, v)
+    except FileNotFoundError:
+        pass
+
+_env_file = os.getenv("SURVEYX_ENV_FILE")
+if _env_file:
+    _load_env_from_file(Path(_env_file))
+else:
+    _load_env_from_file(BASE_DIR / ".env")
+
+
 # huggingface mirror
 # os.environ["HF_ENDPOINT"] = "https://hf-mirror.com" # Uncomment this line if you want to use a specific Hugging Face mirror
 # os.environ["HF_HOME"] = os.path.expanduser("~/hf_cache/")
@@ -20,10 +49,13 @@ ADVANCED_CHATAGENT_MODEL = "gpt-4.1-mini"
 # Responses API for reasoning models (o4/o3 families)
 RESPONSES_URL = "https://api.openai.com/v1/responses"
 # Models that should use Responses API and optionally support reasoning effort
+# Members can be exact model ids or family prefixes; any model name that
+# starts with a listed prefix will be treated as a reasoning model.
 REASONING_MODELS = {
-    "o4",  # high‑end reasoning
+    "o4",       # high‑end reasoning family
     "o4-mini",
     "o3",
+    "gpt-5",    # treat all gpt-5* models as reasoning
 }
 # Default reasoning effort for reasoning models; one of: low|medium|high
 DEFAULT_REASONING_EFFORT = os.getenv("OPENAI_REASONING_EFFORT", "medium")

@@ -40,3 +40,4 @@ toy.py
 parallel_directories
 backup
 backups
+.env

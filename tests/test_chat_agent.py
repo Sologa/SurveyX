@@ -23,7 +23,9 @@ from src.configs.config import (
     REMOTE_URL,
     TOKEN,
     DEFAULT_CHATAGENT_MODEL,
-    ADVANCED_CHATAGENT_MODEL
+    ADVANCED_CHATAGENT_MODEL,
+    REASONING_MODELS,
+    DEFAULT_REASONING_EFFORT,
 )
 
 logger = get_logger("test_chat_agent")
@@ -69,6 +71,71 @@ class ChatAgentTester:
             logger.error(f"❌ ChatAgent初始化失败: {e}")
             return False
 
+    def test_env_loading(self):
+        """测试 .env 读取与环境变量优先级"""
+        logger.info("🔄 测试 .env 读取与优先级...")
+        import importlib
+        import sys as _sys
+        import tempfile
+
+        # 备份原始环境变量
+        original_env = {
+            "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY"),
+            "OPENAI_REASONING_EFFORT": os.environ.get("OPENAI_REASONING_EFFORT"),
+            "SURVEYX_ENV_FILE": os.environ.get("SURVEYX_ENV_FILE"),
+        }
+
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                env_path = Path(tmpdir) / ".env"
+                env_path.write_text(
+                    "OPENAI_API_KEY=sk-from-env-file\nOPENAI_REASONING_EFFORT=high\n",
+                    encoding="utf-8",
+                )
+
+                # 指定测试用 .env 文件，并清空相关环境变量，确保从文件读取
+                os.environ["SURVEYX_ENV_FILE"] = str(env_path)
+                os.environ.pop("OPENAI_API_KEY", None)
+                os.environ.pop("OPENAI_REASONING_EFFORT", None)
+
+                # 重新加载配置模块
+                if "src.configs.config" in _sys.modules:
+                    del _sys.modules["src.configs.config"]
+                config = importlib.import_module("src.configs.config")
+
+                assert config.TOKEN == "sk-from-env-file"
+                assert config.DEFAULT_REASONING_EFFORT == "high"
+
+                # 环境变量应覆盖 .env 文件
+                os.environ["OPENAI_API_KEY"] = "sk-from-env-var"
+                os.environ["OPENAI_REASONING_EFFORT"] = "low"
+                del _sys.modules["src.configs.config"]
+                config = importlib.import_module("src.configs.config")
+                assert config.TOKEN == "sk-from-env-var"
+                assert config.DEFAULT_REASONING_EFFORT == "low"
+
+            logger.info("✅ .env 读取与优先级测试通过")
+            return True
+        except AssertionError as e:
+            logger.error(f"❌ .env 读取测试断言失败: {e}")
+            return False
+        except Exception as e:
+            logger.error(f"❌ .env 读取测试异常: {e}")
+            return False
+        finally:
+            # 恢复环境变量并重载模块，避免影响其他测试
+            for k, v in original_env.items():
+                if v is None:
+                    os.environ.pop(k, None)
+                else:
+                    os.environ[k] = v
+            try:
+                if "src.configs.config" in _sys.modules:
+                    del _sys.modules["src.configs.config"]
+                importlib.import_module("src.configs.config")
+            except Exception:
+                pass
+
     def test_simple_api_call(self, model_name):
         """测试简单API调用"""
         logger.info(f"🔄 测试{model_name}模型API调用...")
@@ -77,11 +144,24 @@ class ChatAgentTester:
             prompt = self.test_prompts["simple"]
             start_time = time.time()
 
-            response = self.agent.remote_chat(
-                text_content=prompt,
-                model=model_name,
-                temperature=0.1
-            )
+            # 若为推理模型（含家族前綴），則附帶 reasoning_effort 並走 Responses API
+            is_reasoning = False
+            try:
+                is_reasoning = model_name in REASONING_MODELS or any(
+                    model_name.startswith(prefix) for prefix in REASONING_MODELS
+                )
+            except Exception:
+                is_reasoning = False
+
+            kwargs = {
+                "text_content": prompt,
+                "model": model_name,
+                "temperature": 0.1,
+            }
+            if is_reasoning:
+                kwargs["reasoning_effort"] = DEFAULT_REASONING_EFFORT or "medium"
+
+            response = self.agent.remote_chat(**kwargs)
 
             call_time = time.time() - start_time
 
@@ -108,7 +188,11 @@ class ChatAgentTester:
 
     def test_multiple_models(self):
         """测试多个模型"""
-        models_to_test = [DEFAULT_CHATAGENT_MODEL, ADVANCED_CHATAGENT_MODEL]
+        models_to_test = [
+            DEFAULT_CHATAGENT_MODEL,
+            ADVANCED_CHATAGENT_MODEL,
+            "gpt-5-nano",  # 務必測試 gpt-5-nano
+        ]
         results = {}
 
         for model in models_to_test:
@@ -170,6 +254,9 @@ class ChatAgentTester:
         logger.info("=" * 50)
 
         test_results = []
+
+        # 0. .env 读取测试
+        test_results.append((".env读取", self.test_env_loading()))
 
         # 1. 初始化测试
         test_results.append(("初始化", self.test_agent_initialization()))
