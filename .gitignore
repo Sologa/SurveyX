@@ -41,3 +41,11 @@ parallel_directories
 backup
 backups
 .env
+
+# Local references (keep example templates only)
+resources/offline_refs/*
+!resources/offline_refs/example/
+!resources/offline_refs/example/**
+
+# External repos
+external/docling/

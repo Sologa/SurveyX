@@ -132,3 +132,59 @@
 ## ⚠️ 免责声明
 
 SurveyX使用先进的语言模型协助生成学术论文。然而，请注意生成的内容仅作为研究辅助工具。用户应验证生成论文的准确性，因为SurveyX无法保证完全符合学术标准。
+
+---
+
+## 🧰 离线开源版本（本仓库）使用指引
+
+> 本仓库提供的开源代码支持离线处理流程：使用您本地的参考文献（Markdown 格式）生成综述。若需完整功能（在线检索、多模态图表检索等），请访问网站端。
+
+### 1）环境准备
+- Python 3.11+
+- 安装依赖：`pip install -r requirements.txt`
+- （可选）LaTeX 环境用于编译 PDF（如 `texlive-full`）
+- PDF 文本抽取工具（用于 PDF→MD 脚本）：
+  - 优先使用 Poppler 的 `pdftotext`（速度与版面更稳定）
+    - macOS: `brew install poppler`
+    - Ubuntu/Debian: `sudo apt-get update && sudo apt-get install -y poppler-utils`
+    - Windows（scoop）: `scoop install poppler`
+  - 备选库：PyMuPDF（fitz）
+    - `pip install pymupdf`
+
+### 2）将 PDF 批量转为 Markdown（.md）
+
+使用脚本 `scripts/pdf_to_md.py`：
+
+```bash
+python scripts/pdf_to_md.py \
+  --in_dir /path/to/pdfs \
+  --out_dir resources/offline_refs/your_topic
+```
+
+说明：
+- 优先使用 `pdftotext -layout`（若系统安装了 Poppler）；否则回退到 PyMuPDF（`fitz`）。
+- 自动在首行补上标题，且若未检测到 “Abstract” 关键词，会合成一个 Abstract 段，以便后续清洗模块识别。
+
+### 3）校验 Markdown 参考文献
+
+使用脚本 `scripts/validate_md_refs.py`：
+
+```bash
+python scripts/validate_md_refs.py --ref_path resources/offline_refs/your_topic
+```
+
+检查要点：
+- 第一行是否为 Markdown 标题（以 `# ` 开头）
+- 是否包含 “Abstract/abstract/A b s t r a c t” 等关键词（与清洗规则一致）
+- 文本长度是否过短（给出提醒）
+
+### 4）运行离线流程
+
+```bash
+python tasks/offline_run.py \
+  --title "Your Survey Title" \
+  --key_words "kw1, kw2" \
+  --ref_path resources/offline_refs/your_topic
+```
+
+注意：离线流程要求所有参考文献集中放在单一目录下，且为 `.md` 格式。首行标题与 Abstract 段将提升清洗与抽取质量。

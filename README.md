@@ -59,6 +59,13 @@ The open-source code in this repository only provides offline processing capabil
 - All Python dependencies in `requirements.txt`
 - LaTeX environment (for PDF compilation):
 - You need to convert all your reference documents to Markdown (`.md`) format and put them together in a single folder before running the pipeline.
+- PDF text extraction tools (for PDF → MD helper script):
+  - Prefer Poppler `pdftotext` (faster, better layout)
+    - macOS: `brew install poppler`
+    - Ubuntu/Debian: `sudo apt-get update && sudo apt-get install -y poppler-utils`
+    - Windows (scoop): `scoop install poppler`
+  - Fallback library: PyMuPDF (fitz)
+    - `pip install pymupdf`
 
 ```bash
 sudo apt update && sudo apt install texlive-full
@@ -89,6 +96,27 @@ DEFAULT_EMBED_ONLINE_MODEL = "BAAI/bge-base-en-v1.5"
 EMBED_REMOTE_URL = "https://api.siliconflow.cn/v1/embeddings"
 EMBED_TOKEN = "your embed token here"
 ```
+
+### 3.5 PDF → Markdown (Offline References)
+
+Before running the offline pipeline, convert your PDFs to Markdown and place them in a single folder. Two helper scripts are provided:
+
+- Convert PDFs to Markdown
+  ```bash
+  python scripts/pdf_to_md.py \
+    --in_dir /path/to/pdfs \
+    --out_dir resources/offline_refs/your_topic
+  ```
+  Notes:
+  - Prefers `pdftotext -layout` if available; otherwise falls back to PyMuPDF (`fitz`).
+  - Automatically adds a first-line title and an `Abstract` section if missing.
+  - If `pdftotext` is not installed, please install Poppler or ensure `pymupdf` is installed.
+
+- Validate Markdown references
+  ```bash
+  python scripts/validate_md_refs.py --ref_path resources/offline_refs/your_topic
+  ```
+  This checks title presence, Abstract keyword, and basic length sanity.
 
 ### 4. Workflow
 
@@ -193,4 +221,3 @@ For questions or issues, please open an issue on the repository.
 ## ⚠️ Disclaimer
 
 SurveyX uses advanced language models to assist with the generation of academic papers. However, it is important to note that the generated content is a tool for research assistance. Users should verify the accuracy of the generated papers, as SurveyX cannot guarantee full compliance with academic standards.
-
