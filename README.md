@@ -99,24 +99,53 @@ EMBED_TOKEN = "your embed token here"
 
 ### 3.5 PDF → Markdown (Offline References)
 
-Before running the offline pipeline, convert your PDFs to Markdown and place them in a single folder. Two helper scripts are provided:
+Convert your local PDFs to Markdown using Docling, then place all `.md` files in a single folder.
 
-- Convert PDFs to Markdown
-  ```bash
-  python scripts/pdf_to_md.py \
-    --in_dir /path/to/pdfs \
-    --out_dir resources/offline_refs/your_topic
-  ```
-  Notes:
-  - Prefers `pdftotext -layout` if available; otherwise falls back to PyMuPDF (`fitz`).
-  - Automatically adds a first-line title and an `Abstract` section if missing.
-  - If `pdftotext` is not installed, please install Poppler or ensure `pymupdf` is installed.
+Install and prepare models (recommended, 8GB M1 friendly):
+```bash
+pip install -U docling docling-tools
+docling-tools models download -o "$HOME/.cache/docling/models"
+# macOS only, optional but recommended for scanned PDFs
+xcode-select --install
+pip install -U ocrmac
+```
 
-- Validate Markdown references
+Option A — Formal converter script (recommended):
+```bash
+bash scripts/docling_pdf_to_md.sh /path/to/pdfs resources/offline_refs/your_topic
+```
+- macOS (scanned PDFs) with Apple OCR:
   ```bash
-  python scripts/validate_md_refs.py --ref_path resources/offline_refs/your_topic
+  DOC_USE_OCRMAC=1 bash scripts/docling_pdf_to_md.sh /path/to/pdfs resources/offline_refs/your_topic
   ```
-  This checks title presence, Abstract keyword, and basic length sanity.
+- Environment knobs: `DOCLING_ARTIFACTS_PATH` (models cache), `DOC_IMAGE_MODE` (default: placeholder), `DOC_DEVICE` (default: mps on macOS), `DOC_THREADS` (2), `DOC_PAGE_BATCH` (2)
+
+Option B — Use the provided test runner:
+```bash
+bash tests/run_test_docling_to_md.sh [INPUT_PATH] [OUTPUT_DIR]
+```
+- Defaults: input `resources/offline_refs/pdfs`, output `resources/offline_refs/docling_md_test`
+- Uses env `DOCLING_ARTIFACTS_PATH="$HOME/.cache/docling/models"`
+
+Option C — Run Docling manually (recommended flags for 8GB M1):
+```bash
+docling /path/to/pdfs \
+  --to md \
+  --image-export-mode placeholder \
+  --ocr true --ocr-engine ocrmac --ocr-lang en-US \
+  --device mps --num-threads 2 --page-batch-size 2 \
+  --output resources/offline_refs/your_topic \
+  --artifacts-path "$HOME/.cache/docling/models"
+```
+
+Notes:
+- Use `--image-export-mode placeholder` to avoid embedding base64 images in Markdown (reduces size and improves downstream processing).
+- Keep all `.md` files in a single directory and pass that directory to the offline pipeline.
+
+Validate generated Markdown (optional):
+```bash
+bash scripts/validate_md_refs.sh resources/offline_refs/your_topic
+```
 
 ### 4. Workflow
 

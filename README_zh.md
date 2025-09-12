@@ -153,30 +153,53 @@ SurveyX使用先进的语言模型协助生成学术论文。然而，请注意�
 
 ### 2）将 PDF 批量转为 Markdown（.md）
 
-使用脚本 `scripts/pdf_to_md.py`：
+使用 Docling 转换 PDF 为 Markdown，并将所有 `.md` 放在同一目录。
 
+安装与模型准备（推荐，适配 8GB M1）：
 ```bash
-python scripts/pdf_to_md.py \
-  --in_dir /path/to/pdfs \
-  --out_dir resources/offline_refs/your_topic
+pip install -U docling docling-tools
+docling-tools models download -o "$HOME/.cache/docling/models"
+# macOS（可选，建议用于扫描件）
+xcode-select --install
+pip install -U ocrmac
+```
+
+方式 A —— 正式脚本（推荐）：
+```bash
+bash scripts/docling_pdf_to_md.sh /path/to/pdfs resources/offline_refs/your_topic
+```
+- macOS（扫描件）启用 Apple OCR：
+  ```bash
+  DOC_USE_OCRMAC=1 bash scripts/docling_pdf_to_md.sh /path/to/pdfs resources/offline_refs/your_topic
+  ```
+- 环境开关：`DOCLING_ARTIFACTS_PATH`（模型缓存）、`DOC_IMAGE_MODE`（默认 placeholder）、`DOC_DEVICE`（macOS 默认 mps）、`DOC_THREADS`（2）、`DOC_PAGE_BATCH`（2）
+
+方式 B —— 使用测试脚本：
+```bash
+bash tests/run_test_docling_to_md.sh [输入PDF目录] [输出目录]
+```
+- 默认：从 `resources/offline_refs/pdfs` 读取，输出到 `resources/offline_refs/docling_md_test`
+- 使用环境变量 `DOCLING_ARTIFACTS_PATH="$HOME/.cache/docling/models"`
+
+方式 C —— 直接运行 Docling（8GB M1 推荐参数）：
+```bash
+docling /path/to/pdfs \
+  --to md \
+  --image-export-mode placeholder \
+  --ocr true --ocr-engine ocrmac --ocr-lang en-US \
+  --device mps --num-threads 2 --page-batch-size 2 \
+  --output resources/offline_refs/your_topic \
+  --artifacts-path "$HOME/.cache/docling/models"
 ```
 
 说明：
-- 优先使用 `pdftotext -layout`（若系统安装了 Poppler）；否则回退到 PyMuPDF（`fitz`）。
-- 自动在首行补上标题，且若未检测到 “Abstract” 关键词，会合成一个 Abstract 段，以便后续清洗模块识别。
+- 建议使用 `--image-export-mode placeholder`，避免在 Markdown 中内嵌 base64 图片，减小体积并有利于后续处理。
+- 请将所有 `.md` 放在同一个目录，后续作为离线流程的 `--ref_path` 输入。
 
-### 3）校验 Markdown 参考文献
-
-使用脚本 `scripts/validate_md_refs.py`：
-
+（可选）校验 Markdown：
 ```bash
-python scripts/validate_md_refs.py --ref_path resources/offline_refs/your_topic
+bash scripts/validate_md_refs.sh resources/offline_refs/your_topic
 ```
-
-检查要点：
-- 第一行是否为 Markdown 标题（以 `# ` 开头）
-- 是否包含 “Abstract/abstract/A b s t r a c t” 等关键词（与清洗规则一致）
-- 文本长度是否过短（给出提醒）
 
 ### 4）运行离线流程
 

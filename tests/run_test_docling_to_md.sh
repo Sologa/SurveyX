@@ -30,7 +30,7 @@ echo "Output: ${OUTPUT_DIR}"
 
 mkdir -p "${OUTPUT_DIR}"
 
-DOC_CMD=(docling "${INPUT_PATH}" --to md --image-export-mode placeholder --output "${OUTPUT_DIR}")
+DOC_CMD=(docling "${INPUT_PATH}" --to md --image-export-mode placeholder --ocr-engine ocrmac --output "${OUTPUT_DIR}")
 
 if [[ -n "${DOCLING_ARTIFACTS_PATH:-}" ]]; then
   echo "Using DOCLING_ARTIFACTS_PATH=${DOCLING_ARTIFACTS_PATH}"

@@ -4,7 +4,7 @@ set -euo pipefail
 # SurveyX convenience runner
 #
 # Usage:
-#   ./run.sh convert   <pdf_dir> <md_out_dir> [--recursive] [--title_from filename|metadata|firstline]
+#   ./run.sh convert   <pdf_dir> <md_out_dir> [-- ...extra docling flags]
 #   ./run.sh validate  <md_dir>
 #   ./run.sh offline   <title> <keywords_csv> <md_dir>
 #   ./run.sh workflow  <task_id>
@@ -12,7 +12,8 @@ set -euo pipefail
 #
 # Notes:
 # - Ensure Python deps installed: pip install -r requirements.txt
-# - For PDF→MD: prefer Poppler (pdftotext). Otherwise install PyMuPDF (pip install pymupdf).
+# - For PDF→MD: this wrapper uses Docling. Install: `pip install -U docling docling-tools`.
+# - Optional (macOS OCR): `xcode-select --install && pip install -U ocrmac`.
 
 cmd=${1:-examples}
 case "$cmd" in
@@ -20,10 +21,10 @@ case "$cmd" in
     pdf_dir=${2:-}
     md_dir=${3:-}
     if [[ -z "${pdf_dir}" || -z "${md_dir}" ]]; then
-      echo "Usage: $0 convert <pdf_dir> <md_out_dir> [--recursive] [--title_from filename|metadata|firstline]"; exit 2
+      echo "Usage: $0 convert <pdf_dir> <md_out_dir> [-- ...extra docling flags]"; exit 2
     fi
-    shift 3 || true
-    python scripts/pdf_to_md.py --in_dir "${pdf_dir}" --out_dir "${md_dir}" "$@"
+    shift 2 || true
+    bash scripts/docling_pdf_to_md.sh "${pdf_dir}" "${md_dir}" "$@"
     ;;
 
   validate)
@@ -31,7 +32,7 @@ case "$cmd" in
     if [[ -z "${md_dir}" ]]; then
       echo "Usage: $0 validate <md_dir>"; exit 2
     fi
-    python scripts/validate_md_refs.py --ref_path "${md_dir}"
+    bash scripts/validate_md_refs.sh "${md_dir}"
     ;;
 
   offline)
@@ -59,8 +60,8 @@ case "$cmd" in
     cat <<'USAGE'
 Examples
 ---------
-# 1) Convert PDFs to Markdown
-./run.sh convert /path/to/pdfs resources/offline_refs/your_topic --recursive --title_from filename
+# 1) Convert PDFs to Markdown (Docling)
+./run.sh convert /path/to/pdfs resources/offline_refs/your_topic -- --image-export-mode placeholder --device mps
 
 # 2) Validate Markdown references
 ./run.sh validate resources/offline_refs/your_topic

@@ -100,6 +100,55 @@ python -m pytest tests/ -v
 python -m pytest tests/test_embed_model.py -v
 ```
 
+## 📄 Docling PDF→Markdown 快速试跑
+
+本仓库提供了一个最小可用的 Docling 转换脚本，便于将本地 PDF 批量转换为 Markdown，作为 SurveyX 离线流程的参考文献输入。
+
+### 1) 依赖与模型（推荐 8GB M1 设置）
+- 安装 Docling 及工具：
+  ```bash
+  pip install -U docling docling-tools
+  ```
+- 预下载模型（离线可用）：
+  ```bash
+  docling-tools models download -o "$HOME/.cache/docling/models"
+  ```
+- （macOS 可选，推荐）Apple OCR：
+  ```bash
+  xcode-select --install
+  pip install -U ocrmac
+  ```
+
+### 2) 运行转换脚本
+
+```bash
+bash tests/run_test_docling_to_md.sh [INPUT_PATH] [OUTPUT_DIR]
+```
+不带参数时，默认从 `resources/offline_refs/pdfs` 读取，输出到 `resources/offline_refs/docling_md_test`。
+
+脚本默认设置：
+- 使用 `DOCLING_ARTIFACTS_PATH="$HOME/.cache/docling/models"`
+- 输出 Markdown (`--to md`)
+- 图片导出模式当前为 embedded（如需减少体积，建议改为 placeholder）
+
+建议在 8GB M1 上将图片模式切换为 `placeholder`，并在需要时启用 Apple OCR（`--ocr-engine ocrmac`）。可直接编辑脚本或手动运行 Docling：
+
+```bash
+docling <INPUT> \
+  --to md \
+  --image-export-mode placeholder \
+  --ocr true --ocr-engine ocrmac --ocr-lang en-US \
+  --device mps --num-threads 2 --page-batch-size 2 \
+  --output <OUTPUT_DIR> \
+  --artifacts-path "$HOME/.cache/docling/models"
+```
+
+转换完成后，将 `.md` 文件所在目录作为 `--ref_path` 传入 `tasks/offline_run.py` 即可。
+
+### 3) 常见问题
+- `ImportError: No module named 'ocrmac'`：未安装 Apple OCR。按上文安装 `ocrmac`，或移除 `--ocr-engine ocrmac`。
+- `.md` 过大：使用 `--image-export-mode placeholder`，避免内嵌 base64 图像导致体积与 token 膨胀。
+
 ## 🧪 测试说明
 
 ### test_embed_model.py
