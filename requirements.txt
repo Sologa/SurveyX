@@ -17,3 +17,4 @@ transformers
 torch
 llama-index-embeddings-huggingface
 python-dotenv==1.0.1
+docling
