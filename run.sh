@@ -1,11 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Optional: auto-activate conda env "surveyx" if available
+if [[ "${CONDA_DEFAULT_ENV:-}" != "surveyx" ]]; then
+  if command -v conda >/dev/null 2>&1; then
+    __conda_base="$(conda info --base 2>/dev/null || true)"
+    if [[ -n "${__conda_base}" && -f "${__conda_base}/etc/profile.d/conda.sh" ]]; then
+      # shellcheck disable=SC1091
+      . "${__conda_base}/etc/profile.d/conda.sh" || true
+      conda activate surveyx || true
+    fi
+  fi
+fi
+
 # SurveyX convenience runner
 #
 # Usage:
 #   ./run.sh convert   <pdf_dir> <md_out_dir> [-- ...extra docling flags]
 #   ./run.sh validate  <md_dir>
+#   ./run.sh download  <json_path> <out_dir> [-- ...extra flags]
 #   ./run.sh offline   <title> <keywords_csv> <md_dir>
 #   ./run.sh workflow  <task_id>
 #   ./run.sh examples  # show examples
@@ -33,6 +46,17 @@ case "$cmd" in
       echo "Usage: $0 validate <md_dir>"; exit 2
     fi
     bash scripts/validate_md_refs.sh "${md_dir}"
+    ;;
+
+  download)
+    json_path=${2:-}
+    out_dir=${3:-}
+    if [[ -z "${json_path}" || -z "${out_dir}" ]]; then
+      echo "Usage: $0 download <json_path> <out_dir> [-- ...extra flags]"; exit 2
+    fi
+    shift 3 || true
+    # Forward extra flags to python downloader
+    python scripts/download_papers.py --json "${json_path}" --out-dir "${out_dir}" "$@"
     ;;
 
   offline)
@@ -65,6 +89,9 @@ Examples
 
 # 2) Validate Markdown references
 ./run.sh validate resources/offline_refs/your_topic
+
+# 3) Download PDFs from a paper list JSON
+./run.sh download resources/included_papers_20250825_balanced.json datasets/papers -- --concurrency 6
 
 # 3) Run full offline pipeline
 ./run.sh offline "Controllable Text Generation for Large Language Models: A Survey" \

@@ -217,14 +217,42 @@ class ChatAgent:
             res = json.loads(response.text)
             # Parse response for both APIs
             res_text = None
-            # Responses API convenience field
-            if isinstance(res, dict) and "output_text" in res:
-                res_text = res["output_text"]
-            # Fallback: Chat Completions style
-            if res_text is None:
-                res_text = res.get("choices", [{}])[0].get("message", {}).get(
-                    "content", ""
-                )
+            if isinstance(res, dict):
+                # Responses API: prefer unified convenience if present
+                if "output_text" in res and isinstance(res["output_text"], str):
+                    res_text = res["output_text"]
+                # General Responses API: collect text from output items
+                elif "output" in res and isinstance(res["output"], list):
+                    parts = []
+                    for item in res["output"]:
+                        if not isinstance(item, dict):
+                            continue
+                        itype = item.get("type")
+                        if itype == "message":
+                            # message.content is a list of content parts
+                            for c in item.get("content", []) or []:
+                                if isinstance(c, dict) and c.get("type") in (
+                                    "output_text",
+                                    "text",
+                                ):
+                                    t = c.get("text")
+                                    if t:
+                                        parts.append(t)
+                        elif itype in ("output_text", "text"):
+                            t = item.get("text")
+                            if t:
+                                parts.append(t)
+                        elif "text" in item and isinstance(item["text"], str):
+                            parts.append(item["text"])
+                    if parts:
+                        res_text = "\n".join(parts)
+                # Chat Completions fallback
+                if res_text is None:
+                    res_text = (
+                        res.get("choices", [{}])[0]
+                        .get("message", {})
+                        .get("content", "")
+                    )
 
             # token monitor (support both usage schemas)
             if self.token_monitor and isinstance(res, dict) and "usage" in res:
@@ -239,10 +267,29 @@ class ChatAgent:
                     if "completion_tokens" in usage
                     else usage.get("output_tokens", 0)
                 )
+                # cached tokens details for prompt/input
+                cached_tokens = 0
+                try:
+                    if "prompt_tokens_details" in usage and isinstance(
+                        usage["prompt_tokens_details"], dict
+                    ):
+                        cached_tokens = int(
+                            usage["prompt_tokens_details"].get("cached_tokens", 0)
+                        )
+                    elif "input_tokens_details" in usage and isinstance(
+                        usage["input_tokens_details"], dict
+                    ):
+                        cached_tokens = int(
+                            usage["input_tokens_details"].get("cached_tokens", 0)
+                        )
+                except Exception:
+                    cached_tokens = 0
+
                 self.token_monitor.add_token(
                     model=model,
                     input_tokens=in_tokens or 0,
                     output_tokens=out_tokens or 0,
+                    cached_input_tokens=cached_tokens or 0,
                 )
         except Exception as e:
             res_text = f"Error: {e}"

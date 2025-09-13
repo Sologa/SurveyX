@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Optional: auto-activate conda env "surveyx" if available
+if [[ "${CONDA_DEFAULT_ENV:-}" != "surveyx" ]]; then
+  if command -v conda >/dev/null 2>&1; then
+    __conda_base="$(conda info --base 2>/dev/null || true)"
+    if [[ -n "${__conda_base}" && -f "${__conda_base}/etc/profile.d/conda.sh" ]]; then
+      # shellcheck disable=SC1091
+      . "${__conda_base}/etc/profile.d/conda.sh" || true
+      conda activate surveyx || true
+    fi
+  fi
+fi
+
 # Formal Docling PDF → Markdown converter for SurveyX
 #
 # Usage:
@@ -56,19 +68,19 @@ fi
 
 # OCR engine (optional ocrmac)
 if [[ "${DOC_USE_OCRMAC}" == "1" ]]; then
-  if python - <<'PY' >/dev/null 2>&1; then
+  if python - <<'PY' >/dev/null 2>&1
 import importlib; import sys
 sys.exit(0 if importlib.util.find_spec('ocrmac') else 1)
 PY
   then
-    DOC_CMD+=(--ocr true --ocr-engine ocrmac --ocr-lang "${DOC_OCR_LANG}")
+    DOC_CMD+=(--ocr --ocr-engine ocrmac --ocr-lang "${DOC_OCR_LANG}")
   else
     echo "[info] ocrmac not installed, skipping --ocr-engine ocrmac" >&2
-    DOC_CMD+=(--ocr true)
+    DOC_CMD+=(--ocr)
   fi
 else
   # keep default OCR behavior (enabled by Docling, image/bitmap regions only)
-  DOC_CMD+=(--ocr true)
+  DOC_CMD+=(--ocr)
 fi
 
 # Pass-through extra flags after --
@@ -85,4 +97,3 @@ echo
 echo "Listing generated files (up to 20):"
 find "${OUTPUT_DIR}" -type f | head -n 20 || true
 echo "Done. Markdown output at: ${OUTPUT_DIR}"
-

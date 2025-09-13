@@ -127,8 +127,12 @@ class OutlinesGenerator(Base):
     ) -> SingleOutline:
         res = chat_agent.remote_chat(prompt, model=ADVANCED_CHATAGENT_MODEL)
         try:
-            res = clean_chat_agent_format(content=res)
-            res_dic = json.loads(res)
+            res_clean = clean_chat_agent_format(content=res)
+            # Prefer robust JSON body extraction to tolerate extra prose
+            res_dic = self.extract_json_body(res_clean)
+            if res_dic is None:
+                # Fallback to direct loading in case response is pure JSON
+                res_dic = json.loads(res_clean)
             secondary_outline = SingleOutline.construct_primary_outline_from_dict(
                 res_dic
             )

@@ -174,6 +174,8 @@ bash scripts/docling_pdf_to_md.sh /path/to/pdfs resources/offline_refs/your_topi
   ```
 - 环境开关：`DOCLING_ARTIFACTS_PATH`（模型缓存）、`DOC_IMAGE_MODE`（默认 placeholder）、`DOC_DEVICE`（macOS 默认 mps）、`DOC_THREADS`（2）、`DOC_PAGE_BATCH`（2）
 
+- 注意：Docling 的 `--ocr` 是布林开关，不需要也不应传入 `true`。脚本会自动追加 `--ocr`（若启用 ocrmac 也会加上 `--ocr-engine ocrmac`）。
+
 方式 B —— 使用测试脚本：
 ```bash
 bash tests/run_test_docling_to_md.sh [输入PDF目录] [输出目录]
@@ -199,6 +201,39 @@ docling /path/to/pdfs \
 （可选）校验 Markdown：
 ```bash
 bash scripts/validate_md_refs.sh resources/offline_refs/your_topic
+```
+
+### 3）根据清单下载 PDF（included_papers_*.json）
+
+当你已有筛选后的论文清单（如 `resources/included_papers_20250825_balanced.json`），可以批量下载对应 PDF：
+
+```bash
+# Python 方式（可加并发/数量上限等参数）
+python scripts/download_papers.py \
+  --json resources/included_papers_20250825_balanced.json \
+  --out-dir datasets/papers \
+  --concurrency 6
+
+# Shell 包装器（与上等价）
+bash scripts/download_papers.sh \
+  resources/included_papers_20250825_balanced.json \
+  datasets/papers -- --concurrency 6
+
+# 或使用 run.sh 子指令
+./run.sh download resources/included_papers_20250825_balanced.json datasets/papers -- --concurrency 6
+```
+
+说明：
+- 默认只下载 `is_included: true` 的条目；如需全部下载，添加 `--all`。
+- 输出目录默认 `datasets/papers`，清单会写到 `download_manifest.jsonl`；失败 URL 记录在 `download_failures.txt`。
+- 文件名采用 `id - title.pdf`，自动处理非法字符。
+
+### 4）环境自动激活（可选）
+
+主要脚本（`run.sh`、`scripts/docling_pdf_to_md.sh`、`scripts/download_papers.sh`）会在检测到未处于 `surveyx` 环境且系统存在 conda 时，尝试 source `$(conda info --base)/etc/profile.d/conda.sh` 并执行 `conda activate surveyx`。如未安装 conda 将自动跳过，不会报错。你也可以手动激活：
+
+```bash
+conda activate surveyx
 ```
 
 ### 4）运行离线流程

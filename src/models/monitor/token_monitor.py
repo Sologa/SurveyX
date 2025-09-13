@@ -61,20 +61,48 @@ class TokenMonitor(Base):
         input_tokens: int,
         output_tokens: int,
         label: str | None = None,
+        cached_input_tokens: int = 0,
     ) -> float:
         with self._lock:  # 加锁
-            if model not in self.pricing:
-                logger.debug(f"未配置 {model} 的定价信息")
-                input_price = self.pricing["default"]["input"]
-                output_price = self.pricing["default"]["output"]
+            # 优先精确匹配；否则按前缀（最长前缀）匹配系列定价；仍无法匹配时使用默认
+            if model in self.pricing:
+                input_price = self.pricing[model].get("input", 0)
+                cached_input_price = self.pricing[model].get(
+                    "cached_input", input_price
+                )
+                output_price = self.pricing[model].get("output", 0)
             else:
-                input_price = self.pricing[model]["input"]
-                output_price = self.pricing[model]["output"]
+                # longest-prefix match against known families (exclude 'default')
+                candidates = [
+                    k for k in self.pricing.keys() if k != "default" and isinstance(k, str)
+                ]
+                best_key = None
+                for k in candidates:
+                    if model.startswith(k) and (best_key is None or len(k) > len(best_key)):
+                        best_key = k
+                if best_key is not None:
+                    input_price = self.pricing[best_key].get("input", 0)
+                    cached_input_price = self.pricing[best_key].get(
+                        "cached_input", input_price
+                    )
+                    output_price = self.pricing[best_key].get("output", 0)
+                else:
+                    logger.debug(f"未配置 {model} 的定价信息")
+                    input_price = self.pricing["default"].get("input", 0)
+                    cached_input_price = self.pricing["default"].get(
+                        "cached_input", input_price
+                    )
+                    output_price = self.pricing["default"].get("output", 0)
 
             # 计算本次费用（保留4位小数）
+            cached_input_tokens = int(cached_input_tokens or 0)
+            normal_input_tokens = max(int(input_tokens or 0) - cached_input_tokens, 0)
+            output_tokens = int(output_tokens or 0)
+
             cost = round(
-                (input_tokens / 1000000 * float(input_price))
-                + (output_tokens / 1000000 * float(output_price)),
+                (normal_input_tokens / 1_000_000 * float(input_price))
+                + (cached_input_tokens / 1_000_000 * float(cached_input_price))
+                + (output_tokens / 1_000_000 * float(output_price)),
                 12,
             )
             # 初始化标签记录结构
@@ -85,14 +113,19 @@ class TokenMonitor(Base):
             # 通过model直接获取记录
             if model not in self.record[label]:
                 self.record[label][model] = {
-                    "input_tokens": input_tokens,
-                    "output_tokens": output_tokens,
+                    "input_tokens": int(input_tokens or 0),
+                    "cached_input_tokens": cached_input_tokens,
+                    "output_tokens": int(output_tokens or 0),
                     "total_cost": cost,
                 }
             else:
                 # 累加已有记录的值
-                self.record[label][model]["input_tokens"] += input_tokens
-                self.record[label][model]["output_tokens"] += output_tokens
+                self.record[label][model]["input_tokens"] += int(input_tokens or 0)
+                self.record[label][model]["cached_input_tokens"] = (
+                    self.record[label][model].get("cached_input_tokens", 0)
+                    + cached_input_tokens
+                )
+                self.record[label][model]["output_tokens"] += int(output_tokens or 0)
                 self.record[label][model]["total_cost"] = round(
                     self.record[label][model]["total_cost"] + cost, 12
                 )

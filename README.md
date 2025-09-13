@@ -120,6 +120,8 @@ bash scripts/docling_pdf_to_md.sh /path/to/pdfs resources/offline_refs/your_topi
   ```
 - Environment knobs: `DOCLING_ARTIFACTS_PATH` (models cache), `DOC_IMAGE_MODE` (default: placeholder), `DOC_DEVICE` (default: mps on macOS), `DOC_THREADS` (2), `DOC_PAGE_BATCH` (2)
 
+- Note: `--ocr` in Docling is a boolean flag, do not pass `true` as a value. The script handles this for you by adding `--ocr` (and `--ocr-engine ocrmac` if enabled).
+
 Option B — Use the provided test runner:
 ```bash
 bash tests/run_test_docling_to_md.sh [INPUT_PATH] [OUTPUT_DIR]
@@ -167,6 +169,14 @@ python tasks/workflow/06_gen_latex.py --task_id $task_id
 ```
 
 **Note:** Your local reference documents **must be in Markdown (`.md`) format** and placed in a single directory.
+
+### 4. Environment activation convenience
+
+The main scripts (`run.sh`, `scripts/docling_pdf_to_md.sh`, `scripts/download_papers.sh`) will attempt to auto-activate the conda env `surveyx` if available by sourcing `$(conda info --base)/etc/profile.d/conda.sh`. If conda is not installed, they continue without failing. You can always activate manually:
+
+```bash
+conda activate surveyx
+```
 
 ### 5. Output
 
@@ -242,6 +252,25 @@ This open source version of Surveyx is a simplified edition. It relies entirely 
 - Keyword expansion and filtering algorithms
 - Multimodal image parsing or figure extraction
 - Online reference search or automatic data fetching
+### 3.6 Download PDFs from a curated JSON list
+
+If you have a curated list such as `resources/included_papers_20250825_balanced.json`, you can batch download the PDFs:
+
+```bash
+# Python script
+python scripts/download_papers.py \
+  --json resources/included_papers_20250825_balanced.json \
+  --out-dir datasets/papers \
+  --concurrency 6
+
+# Or via run.sh
+./run.sh download resources/included_papers_20250825_balanced.json datasets/papers -- --concurrency 6
+```
+
+Details:
+- Defaults to downloading only entries with `is_included: true`. Use `--all` to download all.
+- Outputs to `datasets/papers` by default, writes a manifest `download_manifest.jsonl`, and logs failures to `download_failures.txt`.
+- Filenames use `id - title.pdf` with illegal characters sanitized.
 
 These advanced modules are only available in the full version of Surveyx, which is hosted by MemTensor (Shanghai) Technology Co., Ltd. If you would like to experience the complete features, please visit our official website: [surveyx.cn](https://surveyx.cn)
 

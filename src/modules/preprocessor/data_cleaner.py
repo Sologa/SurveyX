@@ -47,7 +47,7 @@ class DataCleaner:
         for paper in tqdm(self.papers, desc="completing title..."):
             if "title" not in paper:
                 paper["title"] = paper["md_text"].splitlines()[0].strip(" #")
-                paper["title"] = paper["title"][:32]  # avoid too long title
+                # paper["title"] = paper["title"][:32]  # avoid too long title
 
     def complete_abstract(self):
         pattern = r"\s*a\s*b\s*s\s*t\s*r\s*a\s*c\s*t\s*"  # find "abstract" substring, with whitespace bettween letters.

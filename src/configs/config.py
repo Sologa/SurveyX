@@ -43,8 +43,10 @@ REMOTE_URL = "https://api.openai.com/v1/chat/completions"
 TOKEN = os.getenv("OPENAI_API_KEY", "your token here")
 # DEFAULT_CHATAGENT_MODEL = "gpt-4o-mini"
 # ADVANCED_CHATAGENT_MODEL = "gpt-4o"
-DEFAULT_CHATAGENT_MODEL = "gpt-4.1-mini"
-ADVANCED_CHATAGENT_MODEL = "gpt-4.1-mini"
+# DEFAULT_CHATAGENT_MODEL = "gpt-4.1-mini"
+# ADVANCED_CHATAGENT_MODEL = "gpt-4.1-mini"
+DEFAULT_CHATAGENT_MODEL = "gpt-5-nano"
+ADVANCED_CHATAGENT_MODEL = "gpt-5-nano"
 
 # Responses API for reasoning models (o4/o3 families)
 RESPONSES_URL = "https://api.openai.com/v1/responses"
@@ -87,7 +89,8 @@ DEFAULT_ITERATION_LIMIT = 3
 DEFAULT_PAPER_POOL_LIMIT = 1024
 
 ## llamaindex OpenAI
-DEFAULT_LLAMAINDEX_OPENAI_MODEL = "gpt-4.1-mini"
+DEFAULT_LLAMAINDEX_OPENAI_MODEL = "gpt-5-nano"
+# DEFAULT_LLAMAINDEX_OPENAI_MODEL = "gpt-4.1-mini"
 # DEFAULT_LLAMAINDEX_OPENAI_MODEL = "gpt-4o"
 # DEFAULT_OPENAI_MODEL = "gpt-3.5-turbo"
 CHAT_AGENT_WORKERS = 4
