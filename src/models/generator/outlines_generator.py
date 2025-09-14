@@ -197,15 +197,28 @@ class OutlinesGenerator(Base):
         clue_record = {}
         for mount in mount_l:
             for dic in mount:
-                sec_num = dic["section number"]
-                clue = dic["information"]
-                clue_record.setdefault(sec_num, []).append(clue)
+                # Normalize key type for section number
+                sec_num = str(dic.get("section number"))
+                clue = dic.get("information")
+                bucket = clue_record.setdefault(sec_num, [])
+                # information could be a string or a list (sometimes nested)
+                if isinstance(clue, list):
+                    for item in clue:
+                        if item is None:
+                            continue
+                        if isinstance(item, list):
+                            bucket.extend(str(x) for x in item if x is not None)
+                        else:
+                            bucket.append(str(item))
+                elif clue is not None:
+                    bucket.append(str(clue))
 
         for i, section in tqdm(
             enumerate(plain_outline.sections[:-1]),
             total=len(plain_outline.sections[:-1]),
             desc="writing secondary outlines",
         ):
+            # Join flattened clues for this section
             papers = "\n".join(clue_record.get(str(i + 1), []))
             prompt = load_prompt(
                 f"{BASE_DIR}/resources/LLM/prompts/outline_generator/write_secondary_outline.md",
