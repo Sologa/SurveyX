@@ -18,6 +18,186 @@ from src.modules.utils import (
     sanitize_filename,
     save_result,
 )
+from rapidfuzz import process, fuzz
+
+# ----------------- helpers for curated matching and bibtex composing -----------------
+def _normalize_arxiv_id(s: str | None) -> str | None:
+    if not s:
+        return None
+    s = str(s).strip()
+    if s.lower().startswith("arxiv:"):
+        s = s.split(":", 1)[1]
+    return s
+
+
+def _parse_filename_info(p: Path) -> tuple[str | None, str | None]:
+    """Extract arxiv_id and human title from filename if possible.
+    Expected common formats:
+      - arxiv_2501.04227v2 - Agent Laboratory_ Using LLM Agents as Research Assistants.md
+      - <anything> - Title with spaces.md
+    Returns (arxiv_id, title_from_filename)
+    """
+    try:
+        stem = p.stem  # filename without suffix
+        parts = stem.split(" - ", 1)
+        arxiv_id = None
+        title_from_filename = None
+        if len(parts) == 2:
+            left, right = parts
+            # try arxiv_*
+            if left.lower().startswith("arxiv_"):
+                arxiv_id = left[len("arxiv_") :].strip()
+            title_from_filename = right.replace("_", " ").strip(" ")
+        else:
+            # no delimiter; best effort: if startswith arxiv_*
+            left = parts[0]
+            if left.lower().startswith("arxiv_"):
+                arxiv_id = left[len("arxiv_") :].strip()
+        return arxiv_id, title_from_filename
+    except Exception:
+        return None, None
+
+
+def _choose_bib_entry_type(venue: str | None) -> str:
+    if not venue:
+        return "article"
+    v = venue.lower()
+    conf_markers = [
+        "neurips",
+        "iclr",
+        "icml",
+        "kdd",
+        "cvpr",
+        "eccv",
+        "acl",
+        "emnlp",
+        "naacl",
+        "coling",
+        "aaai",
+        "ijcai",
+        "sigkdd",
+        "sigir",
+        "wsdm",
+        "www",
+        "conference",
+        "workshop",
+    ]
+    if any(m in v for m in conf_markers):
+        return "inproceedings"
+    return "article" if "arxiv" in v or "journal" in v else "article"
+
+
+def _format_authors_for_bib(authors: str | list | None) -> str | None:
+    if not authors:
+        return None
+    if isinstance(authors, list):
+        names = [str(a).strip() for a in authors if str(a).strip()]
+    else:
+        # common separators: ";" or "," between authors in curated file
+        if ";" in authors:
+            parts = [x.strip() for x in authors.split(";")]
+        else:
+            parts = [x.strip() for x in authors.split(",")]
+        # Heuristic: some titles may include commas; keep it simple
+        names = [x for x in parts if x]
+    return " and ".join(names) if names else None
+
+
+def _build_bibtex_from_curated(
+    curated: dict, title_fallback: str | None = None, bib_key: str = "tmpkey"
+) -> str:
+    title = curated.get("title") or title_fallback or "Untitled"
+    venue = curated.get("venue")
+    year = curated.get("year")
+    doi = curated.get("doi") or curated.get("DOI")
+    url = curated.get("url_pdf") or curated.get("url") or curated.get("url_landing")
+    arxiv_id = _normalize_arxiv_id(curated.get("arxiv_id") or curated.get("id"))
+    authors = _format_authors_for_bib(curated.get("authors"))
+
+    entry_type = _choose_bib_entry_type(venue)
+
+    # Build fields using simple concatenation to avoid brace escaping pitfalls
+    fields = ["title={" + str(title) + "}"]
+    if authors:
+        fields.append("author={" + str(authors) + "}")
+    if year:
+        fields.append("year={" + str(year) + "}")
+    if entry_type == "inproceedings":
+        if venue:
+            fields.append("booktitle={" + str(venue) + "}")
+    else:  # article
+        if venue:
+            fields.append("journal={" + str(venue) + "}")
+        # arXiv extras when applicable
+        if venue and "arxiv" in venue.lower():
+            if arxiv_id:
+                fields.append("eprint={" + str(arxiv_id) + "}")
+                fields.append("archivePrefix={arXiv}")
+    if doi:
+        fields.append("doi={" + str(doi) + "}")
+    if url:
+        fields.append("url={" + str(url) + "}")
+
+    # compose
+    body = ",\n".join(fields)
+    return f"@{entry_type}{{{bib_key},\n{body}\n}}"
+
+
+def _make_bib_key(
+    curated: dict | None,
+    paper: dict | None,
+    used: set[str],
+) -> str:
+    """Generate a stable, ASCII-only BibTeX key.
+    Priority: arxiv_id -> title (+year) -> fallback counter. Ensure uniqueness via suffixes.
+    """
+    base = None
+    # Prefer arxiv id
+    aid = None
+    if curated:
+        aid = _normalize_arxiv_id(curated.get("arxiv_id") or curated.get("id"))
+    if not aid and paper:
+        aid = paper.get("_arxiv_id_from_filename")
+    if aid:
+        base = f"arxiv_{aid}"
+    # Else from title
+    if not base:
+        title = None
+        if curated:
+            title = curated.get("title")
+        if not title and paper:
+            title = paper.get("_title_from_filename") or paper.get("title")
+        if not title and paper:
+            title = ""
+        title = str(title or "untitled")
+        # normalize title into ascii-ish key
+        # keep letters+digits, collapse whitespace to _, trim
+        import re as _re
+        t_ascii = (
+            _re.sub(r"[^A-Za-z0-9]+", "_", title).strip("_")
+        )
+        # shorten for readability
+        if len(t_ascii) > 40:
+            t_ascii = t_ascii[:40]
+        year = None
+        if curated and curated.get("year"):
+            year = str(curated.get("year"))
+        base = t_ascii + (f"_{year}" if year else "")
+        if not base:
+            base = "ref"
+
+    # ensure ascii and uniqueness
+    import re as _re
+    key = _re.sub(r"[^A-Za-z0-9_]+", "", base)
+    if not key:
+        key = "ref"
+    candidate = key
+    suffix_idx = 1
+    while candidate in used:
+        suffix_idx += 1
+        candidate = f"{key}_{suffix_idx}"
+    used.add(candidate)
+    return candidate
 
 logger = get_logger("src.modules.preprocessor.DataCleaner")
 
@@ -26,6 +206,49 @@ class DataCleaner:
     def __init__(self, papers: list[dict] = []):
         self.papers: list[dict] = papers
         self.chat_agent_workers = CHAT_AGENT_WORKERS
+
+    def _extract_title_from_md(self, md_text: str) -> str:
+        """Best-effort extraction of a title from Markdown text for matching.
+        Looks for first heading (#/##/###) near the beginning, else first non-empty line.
+        Used only for curated metadata matching; does not change default title logic.
+        """
+        if not md_text:
+            return ""
+        lines = md_text.splitlines()
+        for line in lines[:120]:
+            m = re.match(r"^\s{0,3}(#{1,4})\s+(.+?)\s*$", line)
+            if m:
+                return m.group(2).strip(" #")
+        for line in lines[:80]:
+            t = line.strip(" #")
+            if t:
+                return t
+        for line in lines:
+            t = line.strip(" #")
+            if t:
+                return t
+        return ""
+
+    def _safe_batch(self, chat_agent: ChatAgent, prompts: list[str], desc: str) -> list[str]:
+        """Attempt batch call; on failure, fall back to per-item calls so only
+        problematic papers are skipped instead of failing the whole run."""
+        try:
+            return chat_agent.batch_remote_chat(prompts, desc=desc)
+        except Exception as e:
+            logger.error(f"batch_remote_chat failed ({e}); falling back to sequential remote_chat")
+            results: list[str] = []
+            for p in tqdm(prompts, desc=f"fallback: {desc}"):
+                try:
+                    results.append(chat_agent.remote_chat(p))
+                except Exception as ee:
+                    msg = str(ee)
+                    logger.error(f"remote_chat failed for one prompt: {msg}")
+                    non_retryable = (
+                        "Invalid prompt" in msg or "limited access" in msg or "safety" in msg
+                    )
+                    token = chat_agent.NonRetryToken if non_retryable else chat_agent.RetryToken
+                    results.append(f"{token}: {msg}")
+            return results
 
     def load_json_dir(self, json_path_dir: Path):
         """load papers from json directory."""
@@ -79,12 +302,18 @@ class DataCleaner:
                 paper["bib_name"] = new_bib_name
                 paper["reference"] = paper["reference"].replace(bib_name, new_bib_name)
             else:
-                title = remove_non_ascii_chars(paper["title"])
-                bib_name = "".join([c for c in title if not c.isspace()][:10]) + str(
-                    var_name_i
-                )
+                # Prefer stable key from arxiv_id if available
+                if paper.get("arxiv_id"):
+                    bib_name = remove_non_ascii_chars(str(paper["arxiv_id"]))
+                else:
+                    title = remove_non_ascii_chars(paper.get("title", ""))
+                    bib_name = "".join([c for c in title if not c.isspace()][:10]) + str(
+                        var_name_i
+                    )
                 var_name_i += 1
-                bib_tex = f"@article{{{bib_name},\ntitle={{{title}}}\n}}"
+                # Ensure title present in bib
+                title_field = remove_non_ascii_chars(paper.get("title", ""))
+                bib_tex = f"@article{{{bib_name},\ntitle={{{title_field}}}\n}}"
 
                 paper["reference"] = bib_tex
                 paper["bib_name"] = bib_name
@@ -127,11 +356,14 @@ class DataCleaner:
         cnt = 0
         while prompts_and_index and cnt < 3:
             prompts = [x[0] for x in prompts_and_index]
-            res_l = chat_agent.batch_remote_chat(prompts, desc="getting paper type...")
+            res_l = self._safe_batch(chat_agent, prompts, desc="getting paper type...")
             prompts_and_index = [
                 (prompt, paper_index)
                 for res, (prompt, paper_index) in zip(res_l, prompts_and_index)
-                if not self.__process_paper_type_response(res, paper_index)
+                if not (
+                    isinstance(res, str)
+                    and res.startswith(chat_agent.NonRetryToken)
+                ) and not self.__process_paper_type_response(res, paper_index)
             ]
             cnt += 1
 
@@ -164,14 +396,17 @@ class DataCleaner:
         cnt = 0
         while prompts_and_index and cnt < 3:
             prompts = [x[0] for x in prompts_and_index]
-            res_l = chat_agent.batch_remote_chat(
-                prompts, desc="getting attribute tree from paper......"
+            res_l = self._safe_batch(
+                chat_agent, prompts, desc="getting attribute tree from paper......"
             )
 
             prompts_and_index = [
                 (prompt, paper_index)
                 for res, (prompt, paper_index) in zip(res_l, prompts_and_index)
-                if not self.__process_attri_response(res, paper_index)
+                if not (
+                    isinstance(res, str)
+                    and res.startswith(chat_agent.NonRetryToken)
+                ) and not self.__process_attri_response(res, paper_index)
             ]
             cnt += 1
 
@@ -214,20 +449,114 @@ class DataCleaner:
         self.complete_abstract()
         return self.papers
 
-    def offline_proc(self, task_id: str, ref_path: str) -> None:
+    def offline_proc(
+        self,
+        task_id: str,
+        ref_path: str,
+        curated_json: str | None = None,
+        skip_llm: bool = False,
+    ) -> None:
         ref_data_path = Path(ref_path)
-        md_texts = [p.read_text() for p in ref_data_path.glob("*.md") if p.is_file()]
-        self.papers = [{"md_text": md_text} for md_text in md_texts]
+        md_files = [p for p in ref_data_path.glob("*.md") if p.is_file()]
+        self.papers = []
+        for p in md_files:
+            md_text = p.read_text(encoding="utf-8", errors="ignore")
+            arxiv_id_from_fn, title_from_fn = _parse_filename_info(p)
+            self.papers.append(
+                {
+                    "md_text": md_text,
+                    "_md_filename": p.name,
+                    "_arxiv_id_from_filename": _normalize_arxiv_id(arxiv_id_from_fn),
+                    "_title_from_filename": title_from_fn,
+                }
+            )
 
+        # Merge curated metadata when provided
+        curated_list: list[dict] = []
+        if curated_json:
+            cpath = Path(curated_json)
+            if cpath.exists():
+                try:
+                    data = json.loads(cpath.read_text(encoding="utf-8"))
+                    if isinstance(data, list):
+                        curated_list = data
+                    else:
+                        logger.warning("Curated JSON is not a list; skipping.")
+                except Exception as e:
+                    logger.error(f"Failed to read curated JSON: {e}")
+            else:
+                logger.warning(f"Curated JSON not found: {curated_json}")
+
+        if curated_list:
+            # Build indices for robust matching
+            curated_by_arxiv: dict[str, dict] = {}
+            curated_titles = []
+            curated_title_index = []
+            for item in curated_list:
+                aid = _normalize_arxiv_id(item.get("arxiv_id") or item.get("id"))
+                if aid:
+                    curated_by_arxiv[aid] = item
+                t = str(item.get("title") or "").strip()
+                curated_titles.append(t)
+                curated_title_index.append(item)
+            used_keys: set[str] = set()
+            for paper in self.papers:
+                chosen = None
+                # 1) Try exact arxiv id by filename
+                aid = paper.get("_arxiv_id_from_filename")
+                if aid and aid in curated_by_arxiv:
+                    chosen = curated_by_arxiv[aid]
+                # 2) Try exact title match by filename-derived title
+                if not chosen:
+                    tfn = str(paper.get("_title_from_filename") or "").strip()
+                    if tfn:
+                        # exact case-insensitive compare
+                        for item in curated_list:
+                            if str(item.get("title") or "").strip().lower() == tfn.lower():
+                                chosen = item
+                                break
+                # 3) Fallback: fuzzy match using MD-extracted title
+                if not chosen:
+                    md_title = self._extract_title_from_md(paper.get("md_text", ""))
+                    if md_title:
+                        match, score, idx = process.extractOne(
+                            md_title, curated_titles, scorer=fuzz.token_set_ratio
+                        )
+                        if score is not None and score >= 80:
+                            chosen = curated_title_index[idx]
+
+                # Merge when matched
+                if chosen:
+                    # generate stable unique bib key now
+                    bib_key = _make_bib_key(chosen, paper, used_keys)
+                    if chosen.get("title"):
+                        paper["title"] = str(chosen["title"]).strip()
+                    if chosen.get("abstract"):
+                        paper["abstract"] = str(chosen["abstract"]).strip()
+                    if chosen.get("arxiv_id") or chosen.get("id"):
+                        paper["arxiv_id"] = str(
+                            _normalize_arxiv_id(chosen.get("arxiv_id") or chosen.get("id"))
+                        ).strip()
+                    # Build a full BibTeX in advance so complete_bib will preserve fields
+                    try:
+                        paper["reference"] = _build_bibtex_from_curated(
+                            curated=chosen, title_fallback=paper.get("title"), bib_key=bib_key
+                        )
+                        paper["bib_name"] = bib_key
+                    except Exception as e:
+                        logger.debug(f"Failed to build curated bibtex for one paper: {e}")
+
+        # Fill missing fields via existing fallbacks
         self.complete_title()
         self.complete_abstract()
         bib_file_path = Path(OUTPUT_DIR) / task_id / "latex" / "references.bib"
         self.complete_bib(bib_file_path)
 
         self.check_md_text_length()
-        chat_agent = ChatAgent()
-        self.get_paper_type(chat_agent=chat_agent)
-        self.get_attri(chat_agent=chat_agent)
+        if not skip_llm:
+            chat_agent = ChatAgent()
+            self.get_paper_type(chat_agent=chat_agent)
+            self.get_attri(chat_agent=chat_agent)
 
         save_path = Path(f"{OUTPUT_DIR}/{task_id}/papers")
         self.save_papers(save_dir=save_path)

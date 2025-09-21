@@ -15,6 +15,7 @@ from tenacity import (
     retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
+    RetryError,
 )
 from tqdm import tqdm
 from pathlib import Path
@@ -45,6 +46,8 @@ class ChatAgent:
     Request_stats_file = Path(f"{OUTPUT_DIR}/tmp/request_stats.txt")
     Record_splitter = "||"
     Record_show_length = 200
+    NonRetryToken = "__NON_RETRYABLE__"
+    RetryToken = "__RETRYABLE__"
 
     def __init__(
         self,
@@ -307,6 +310,34 @@ class ChatAgent:
             return res_text, response
         return res_text
 
+    # --------------- Safe helpers (non-raising) ---------------
+    def safe_remote_chat(
+        self,
+        text_content: str,
+        image_urls: list[str] | None = None,
+        local_images: list[Path] | None = None,
+        temperature: float = 0.5,
+        debug: bool = False,
+        model=DEFAULT_CHATAGENT_MODEL,
+        reasoning_effort: str | None = None,
+    ) -> str:
+        """Wrapper around remote_chat that never raises.
+        Returns "no response" on failure to let callers skip problematic items.
+        """
+        try:
+            return self.remote_chat(
+                text_content=text_content,
+                image_urls=image_urls,
+                local_images=local_images,
+                temperature=temperature,
+                debug=debug,
+                model=model,
+                reasoning_effort=reasoning_effort,
+            )
+        except Exception as e:
+            logger.error(f"safe_remote_chat suppressed error: {e}")
+            return "no response"
+
     # map chat index
     def __remote_chat(
         self,
@@ -339,11 +370,13 @@ class ChatAgent:
             workers = self.batch_workers
         # 创建线程池
         with ThreadPoolExecutor(max_workers=workers) as executor:
-            # 提交任务
-            future_l = [
-                executor.submit(self.__remote_chat, i, prompt_l[i], temperature)
-                for i in range(len(prompt_l))
-            ]
+            # 提交任务，并维护 future -> index 映射
+            future_l = []
+            future_to_index: dict = {}
+            for i in range(len(prompt_l)):
+                f = executor.submit(self.__remote_chat, i, prompt_l[i], temperature)
+                future_l.append(f)
+                future_to_index[f] = i
             # 领取任务结果
             res_l = ["no response"] * len(prompt_l)
             for future in tqdm(
@@ -352,9 +385,65 @@ class ChatAgent:
                 total=len(future_l),
                 dynamic_ncols=True,
             ):
-                i, resp = future.result()
-                res_l[i] = resp
+                try:
+                    i, resp = future.result()
+                    res_l[i] = resp
+                except Exception as e:
+                    # Classify retryability and record a placeholder result
+                    msg = str(e)
+                    code = None
+                    non_retryable = False
+                    try:
+                        import re as _re
+                        m = _re.search(r"LLM API error (\d+)", msg)
+                        if m:
+                            code = int(m.group(1))
+                    except Exception:
+                        code = None
+
+                    # Determine if the error should be treated as non-retryable
+                    if code == 400 or (
+                        "Invalid prompt" in msg
+                        or "limited access" in msg
+                        or "safety" in msg
+                    ):
+                        non_retryable = True
+                    else:
+                        # Tenacity RetryError likely indicates transient failures after retries
+                        non_retryable = False if isinstance(e, RetryError) else False
+
+                    token = self.NonRetryToken if non_retryable else self.RetryToken
+                    logger.error(
+                        f"batch item failed ({'non-retryable' if non_retryable else 'retryable'}): {msg[:200]}"
+                    )
+                    # Use the recorded index for this future to place the tagged placeholder
+                    i_idx = future_to_index.get(future, None)
+                    if isinstance(i_idx, int) and 0 <= i_idx < len(res_l):
+                        res_l[i_idx] = f"{token}: {msg}"
         return res_l
+
+    def safe_batch_remote_chat(
+        self,
+        prompt_l: list[str],
+        desc: str = "batch_chating...",
+        workers: int = CHAT_AGENT_WORKERS,
+        temperature: float = 0.5,
+    ) -> list[str]:
+        """Batch chat that never raises. Falls back to sequential safe_remote_chat
+        if a batch call fails."""
+        try:
+            return self.batch_remote_chat(
+                prompt_l=prompt_l,
+                desc=desc,
+                workers=workers,
+                temperature=temperature,
+            )
+        except Exception as e:
+            logger.error(f"safe_batch_remote_chat falling back due to: {e}")
+            results: list[str] = []
+            for p in tqdm(prompt_l, desc=f"fallback: {desc}", total=len(prompt_l)):
+                results.append(self.safe_remote_chat(p, temperature=temperature))
+            return results
 
     @classmethod
     def update_record(

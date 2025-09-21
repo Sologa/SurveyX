@@ -32,12 +32,22 @@ def check_latexmk_installed():
         logger.debug("latexmk is not installed.")
         return False
 
-def offline_generate(task_id: str, ref_path: str):
+def offline_generate(
+    task_id: str,
+    ref_path: str,
+    curated_json: str | None = None,
+    skip_llm: bool = False,
+    only_clean: bool = False,
+):
     chat_agent = ChatAgent()
     
     # preprocess references
     dc = DataCleaner()
-    dc.offline_proc(task_id=task_id, ref_path=ref_path)
+    dc.offline_proc(task_id=task_id, ref_path=ref_path, curated_json=curated_json, skip_llm=skip_llm)
+
+    if only_clean:
+        logger.info("Only cleaning stage requested; exiting after producing papers and references.bib.")
+        return
 
     # generate outlines
     outline_generator = OutlinesGenerator(task_id)
@@ -71,4 +81,10 @@ if __name__ == "__main__":
     topic = tmp_config["topic"]
     task_id = tmp_config["task_id"]
     
-    offline_generate(task_id=task_id, ref_path=args.ref_path)
+    offline_generate(
+        task_id=task_id,
+        ref_path=args.ref_path,
+        curated_json=args.curated_json,
+        skip_llm=getattr(args, "skip_llm", False),
+        only_clean=getattr(args, "only_clean", False),
+    )

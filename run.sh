@@ -64,9 +64,11 @@ case "$cmd" in
     keywords=${3:-}
     md_dir=${4:-}
     if [[ -z "${title}" || -z "${keywords}" || -z "${md_dir}" ]]; then
-      echo "Usage: $0 offline <title> <keywords_csv> <md_dir>"; exit 2
+      echo "Usage: $0 offline <title> <keywords_csv> <md_dir> [-- ...extra offline flags]"; exit 2
     fi
-    python tasks/offline_run.py --title "${title}" --key_words "${keywords}" --ref_path "${md_dir}"
+    shift 4 || true
+    # Forward extra flags (e.g., --curated_json, --only_clean, --skip_llm) to Python entry
+    python tasks/offline_run.py --title "${title}" --key_words "${keywords}" --ref_path "${md_dir}" "$@"
     ;;
 
   workflow)
@@ -93,10 +95,11 @@ Examples
 # 3) Download PDFs from a paper list JSON
 ./run.sh download resources/included_papers_20250825_balanced.json datasets/papers -- --concurrency 6
 
-# 3) Run full offline pipeline
+# 3) Run offline cleaning / pipeline (with extra flags)
 ./run.sh offline "Controllable Text Generation for Large Language Models: A Survey" \
   "controlled text generation, text generation, large language model, LLM" \
-  resources/offline_refs/your_topic
+  resources/offline_refs/your_topic \
+  --curated_json resources/offline_refs/included_papers_20250825_balanced.json --only_clean
 
 # 4) Run workflow phases after you have a task_id
 #    (check outputs/<task_id>/tmp_config.json from previous run)

@@ -82,7 +82,7 @@ class ContentGenerator(Base):
         mount_l = [None] * len(papers)
         while prompts_and_index and retry < 3:
             prompts = [x[0] for x in prompts_and_index]
-            response_l = chat.batch_remote_chat(
+            response_l = chat.safe_batch_remote_chat(
                 prompts, desc="mouting trees on outlines..."
             )
 
@@ -190,8 +190,10 @@ class ContentGenerator(Base):
             last_written=last_written,
         )
         while self.contains_markdown(res) == True:
-            res = chat.remote_chat(prmpt, model=ADVANCED_CHATAGENT_MODEL)
-            res = clean_chat_agent_format(content=res)
+            tmp = chat.safe_remote_chat(prmpt, model=ADVANCED_CHATAGENT_MODEL)
+            if tmp == "no response":
+                break
+            res = clean_chat_agent_format(content=tmp)
         res = res.replace("\\subsection{Conclusion}", "")
         return res
 
@@ -212,7 +214,7 @@ class ContentGenerator(Base):
             / "write_section_words.md",
             section=section,
         )
-        res = chat.remote_chat(prompt)
+        res = chat.safe_remote_chat(prompt)
         try:
             ans = re.findall(r"<answer>(.*?)</answer>", res, re.DOTALL)[0]
             ans = clean_chat_agent_format(ans)
@@ -221,7 +223,7 @@ class ContentGenerator(Base):
                 f"Failed to get answer from the chat agent. The response is: {res}"
             )
             logger.error(f"Prompt: {prompt}")
-            raise Exception("Failed to get answer from the chat agent")
+            return section  # keep original section if LLM fails
 
         # replace the <section_words> with the generated content
         section = section.replace("<section_words>", ans)
@@ -368,8 +370,10 @@ class ContentGenerator(Base):
                     section_desc=subsection.desc,
                 )
                 while self.contains_markdown(res) == True:
-                    res = chat.remote_chat(prmpt, model=ADVANCED_CHATAGENT_MODEL)
-                    res = clean_chat_agent_format(content=res)
+                    tmp = chat.safe_remote_chat(prmpt, model=ADVANCED_CHATAGENT_MODEL)
+                    if tmp == "no response":
+                        break
+                    res = clean_chat_agent_format(content=tmp)
                 res = res.replace("\\subsection{Conclusion}", "")
                 mainbody.append(res)
                 written_content = "\n\n".join(mainbody)
@@ -389,7 +393,7 @@ class ContentGenerator(Base):
             mainbody_raw=mainbody_raw,
         )
         logger.debug("Generating abstract.")
-        abstract = chat.remote_chat(prompt, model=ADVANCED_CHATAGENT_MODEL)
+        abstract = chat.safe_remote_chat(prompt, model=ADVANCED_CHATAGENT_MODEL)
         abstract = abstract.split("<abstract>")[-1].split("</abstract>")[0].strip()
         abstract = "\n\\begin{abstract}\n" + abstract + "\n\\end{abstract}\n"
         save_result(abstract, abstract_save_path)
