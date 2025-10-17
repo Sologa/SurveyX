@@ -59,6 +59,13 @@ The open-source code in this repository only provides offline processing capabil
 - All Python dependencies in `requirements.txt`
 - LaTeX environment (for PDF compilation):
 - You need to convert all your reference documents to Markdown (`.md`) format and put them together in a single folder before running the pipeline.
+- PDF text extraction tools (for PDF → MD helper script):
+  - Prefer Poppler `pdftotext` (faster, better layout)
+    - macOS: `brew install poppler`
+    - Ubuntu/Debian: `sudo apt-get update && sudo apt-get install -y poppler-utils`
+    - Windows (scoop): `scoop install poppler`
+  - Fallback library: PyMuPDF (fitz)
+    - `pip install pymupdf`
 
 ```bash
 sudo apt update && sudo apt install texlive-full
@@ -90,6 +97,58 @@ EMBED_REMOTE_URL = "https://api.siliconflow.cn/v1/embeddings"
 EMBED_TOKEN = "your embed token here"
 ```
 
+### 3.5 PDF → Markdown (Offline References)
+
+Convert your local PDFs to Markdown using Docling, then place all `.md` files in a single folder.
+
+Install and prepare models (recommended, 8GB M1 friendly):
+```bash
+pip install -U docling docling-tools
+docling-tools models download -o "$HOME/.cache/docling/models"
+# macOS only, optional but recommended for scanned PDFs
+xcode-select --install
+pip install -U ocrmac
+```
+
+Option A — Formal converter script (recommended):
+```bash
+bash scripts/docling_pdf_to_md.sh /path/to/pdfs resources/offline_refs/your_topic
+```
+- macOS (scanned PDFs) with Apple OCR:
+  ```bash
+  DOC_USE_OCRMAC=1 bash scripts/docling_pdf_to_md.sh /path/to/pdfs resources/offline_refs/your_topic
+  ```
+- Environment knobs: `DOCLING_ARTIFACTS_PATH` (models cache), `DOC_IMAGE_MODE` (default: placeholder), `DOC_DEVICE` (default: mps on macOS), `DOC_THREADS` (2), `DOC_PAGE_BATCH` (2)
+
+- Note: `--ocr` in Docling is a boolean flag, do not pass `true` as a value. The script handles this for you by adding `--ocr` (and `--ocr-engine ocrmac` if enabled).
+
+Option B — Use the provided test runner:
+```bash
+bash tests/run_test_docling_to_md.sh [INPUT_PATH] [OUTPUT_DIR]
+```
+- Defaults: input `resources/offline_refs/pdfs`, output `resources/offline_refs/docling_md_test`
+- Uses env `DOCLING_ARTIFACTS_PATH="$HOME/.cache/docling/models"`
+
+Option C — Run Docling manually (recommended flags for 8GB M1):
+```bash
+docling /path/to/pdfs \
+  --to md \
+  --image-export-mode placeholder \
+  --ocr true --ocr-engine ocrmac --ocr-lang en-US \
+  --device mps --num-threads 2 --page-batch-size 2 \
+  --output resources/offline_refs/your_topic \
+  --artifacts-path "$HOME/.cache/docling/models"
+```
+
+Notes:
+- Use `--image-export-mode placeholder` to avoid embedding base64 images in Markdown (reduces size and improves downstream processing).
+- Keep all `.md` files in a single directory and pass that directory to the offline pipeline.
+
+Validate generated Markdown (optional):
+```bash
+bash scripts/validate_md_refs.sh resources/offline_refs/your_topic
+```
+
 ### 4. Workflow
 
 
@@ -110,6 +169,14 @@ python tasks/workflow/06_gen_latex.py --task_id $task_id
 ```
 
 **Note:** Your local reference documents **must be in Markdown (`.md`) format** and placed in a single directory.
+
+### 4. Environment activation convenience
+
+The main scripts (`run.sh`, `scripts/docling_pdf_to_md.sh`, `scripts/download_papers.sh`) will attempt to auto-activate the conda env `surveyx` if available by sourcing `$(conda info --base)/etc/profile.d/conda.sh`. If conda is not installed, they continue without failing. You can always activate manually:
+
+```bash
+conda activate surveyx
+```
 
 ### 5. Output
 
@@ -185,12 +252,48 @@ This open source version of Surveyx is a simplified edition. It relies entirely 
 - Keyword expansion and filtering algorithms
 - Multimodal image parsing or figure extraction
 - Online reference search or automatic data fetching
+### 3.6 Download PDFs from a curated JSON list
+
+If you have a curated list such as `resources/included_papers_20250825_balanced.json`, you can batch download the PDFs:
+
+```bash
+# Python script
+python scripts/download_papers.py \
+  --json resources/included_papers_20250825_balanced.json \
+  --out-dir datasets/papers \
+  --concurrency 6
+
+# Or via run.sh
+./run.sh download resources/included_papers_20250825_balanced.json datasets/papers -- --concurrency 6
+```
+
+Details:
+- Defaults to downloading only entries with `is_included: true`. Use `--all` to download all.
+- Outputs to `datasets/papers` by default, writes a manifest `download_manifest.jsonl`, and logs failures to `download_failures.txt`.
+- Filenames use `id - title.pdf` with illegal characters sanitized.
 
 These advanced modules are only available in the full version of Surveyx, which is hosted by MemTensor (Shanghai) Technology Co., Ltd. If you would like to experience the complete features, please visit our official website: [surveyx.cn](https://surveyx.cn)
+
+---
+
+## 🧪 Sandbox - AI Agent Practice Environment
+
+The `sandbox/` directory contains practice scenarios for AI agents to learn debugging and problem-solving:
+
+- **`latex_citation_fix/`** - LaTeX compilation errors and citation escaping issues (Difficulty: ⭐⭐⭐⭐)
+
+Each sandbox provides:
+- Original problematic files
+- Verification scripts
+- Reset tools
+- Reference solutions (optional)
+
+See `sandbox/README.md` for details.
+
+---
 
 For questions or issues, please open an issue on the repository.
 
 ## ⚠️ Disclaimer
 
 SurveyX uses advanced language models to assist with the generation of academic papers. However, it is important to note that the generated content is a tool for research assistance. Users should verify the accuracy of the generated papers, as SurveyX cannot guarantee full compliance with academic standards.
-

@@ -41,6 +41,9 @@ class OutlinesGenerator(Base):
         papers = load_papers(paper_dir_path_or_papers=paper_dir)
         return papers
 
+    def _safe_remote(self, chat_agent: ChatAgent, prompt: str, temperature: float = 0.3):
+        return chat_agent.safe_remote_chat(prompt, model=ADVANCED_CHATAGENT_MODEL, temperature=temperature)
+
     def provide_relevant_paper_infos(self, papers: list, paper_limit: int = 60):
         paper_list = []
         for paper in tqdm(papers[:paper_limit], "provide_relevant_paper_infos"):
@@ -80,17 +83,20 @@ class OutlinesGenerator(Base):
             keyword=self.key_words,
             topic=self.topic,
         )
-        res = chat_agent.remote_chat(
-            prompt, model=ADVANCED_CHATAGENT_MODEL, temperature=0.3
-        )
+        res = self._safe_remote(chat_agent, prompt, temperature=0.3)
         res = clean_chat_agent_format(content=res)
         try:
             dic = self.extract_json_body(content=res)
         except json.JSONDecodeError as e:
             logger.error(f"json load failed.{e}")
             logger.error(f"Response from gpt: {res}")
-            raise json.JSONDecodeError(f"JSON decode failed: {e}")
-
+            dic = None
+        # Fallback minimal outline to keep pipeline alive
+        if not dic:
+            dic = {
+                "title": getattr(self, "topic", "Survey"),
+                "sections": [],
+            }
         return dic
 
     def _check_response(self, res: str) -> bool:
@@ -127,8 +133,12 @@ class OutlinesGenerator(Base):
     ) -> SingleOutline:
         res = chat_agent.remote_chat(prompt, model=ADVANCED_CHATAGENT_MODEL)
         try:
-            res = clean_chat_agent_format(content=res)
-            res_dic = json.loads(res)
+            res_clean = clean_chat_agent_format(content=res)
+            # Prefer robust JSON body extraction to tolerate extra prose
+            res_dic = self.extract_json_body(res_clean)
+            if res_dic is None:
+                # Fallback to direct loading in case response is pure JSON
+                res_dic = json.loads(res_clean)
             secondary_outline = SingleOutline.construct_primary_outline_from_dict(
                 res_dic
             )
@@ -166,7 +176,7 @@ class OutlinesGenerator(Base):
         cnt = 0
         mount_l = []
         while len(prompts) and cnt < 3:
-            batch_res = chat.batch_remote_chat(
+            batch_res = chat.safe_batch_remote_chat(
                 prompts, desc="Mounting papers on primary outline..."
             )
 
@@ -193,15 +203,28 @@ class OutlinesGenerator(Base):
         clue_record = {}
         for mount in mount_l:
             for dic in mount:
-                sec_num = dic["section number"]
-                clue = dic["information"]
-                clue_record.setdefault(sec_num, []).append(clue)
+                # Normalize key type for section number
+                sec_num = str(dic.get("section number"))
+                clue = dic.get("information")
+                bucket = clue_record.setdefault(sec_num, [])
+                # information could be a string or a list (sometimes nested)
+                if isinstance(clue, list):
+                    for item in clue:
+                        if item is None:
+                            continue
+                        if isinstance(item, list):
+                            bucket.extend(str(x) for x in item if x is not None)
+                        else:
+                            bucket.append(str(item))
+                elif clue is not None:
+                    bucket.append(str(clue))
 
         for i, section in tqdm(
             enumerate(plain_outline.sections[:-1]),
             total=len(plain_outline.sections[:-1]),
             desc="writing secondary outlines",
         ):
+            # Join flattened clues for this section
             papers = "\n".join(clue_record.get(str(i + 1), []))
             prompt = load_prompt(
                 f"{BASE_DIR}/resources/LLM/prompts/outline_generator/write_secondary_outline.md",
@@ -230,9 +253,7 @@ class OutlinesGenerator(Base):
             secondary_outlines=subsections,
         )
         logger.debug(f"deduplicating subsections...")
-        deduplicated_outlines = chat.remote_chat(
-            deduplicate_prompt, model=ADVANCED_CHATAGENT_MODEL
-        )
+        deduplicated_outlines = self._safe_remote(chat, deduplicate_prompt)
 
         # __________ 5. Reorganize outlines ___________
         reorganize_prompt = load_prompt(
@@ -246,11 +267,13 @@ class OutlinesGenerator(Base):
             secondary_outlines=deduplicated_outlines,
         )
         logger.debug(f"reorganizing outlines...")
-        reorganized_outlines = chat.remote_chat(
-            reorganize_prompt, model=ADVANCED_CHATAGENT_MODEL
-        )
+        reorganized_outlines = self._safe_remote(chat, reorganize_prompt)
         reorganized_outlines = clean_chat_agent_format(content=reorganized_outlines)
-        final_outlines = Outlines.from_dict(dic=json.loads(reorganized_outlines))
+        try:
+            final_outlines = Outlines.from_dict(dic=json.loads(reorganized_outlines))
+        except Exception:
+            # If reorg fails, try using plain outline directly
+            final_outlines = Outlines.from_dict(plain_outline_dic)
         final_outlines.save_to_file(self.outlines_save_path)
 
         time_monitor.end("generate outline")

@@ -93,6 +93,25 @@ def parse_arguments_for_offline() -> ArgsNamespace:
         default="",
         help="Path to the reference papers for offline run.",
     )
+    parser.add_argument(
+        "--curated_json",
+        type=str,
+        default="",
+        help=(
+            "Optional: Path to curated metadata JSON (e.g., resources/offline_refs/included_papers_*.json). "
+            "When provided, title/abstract/arxiv_id will be merged in and take precedence over MD extraction."
+        ),
+    )
+    parser.add_argument(
+        "--skip_llm",
+        action="store_true",
+        help="Skip ChatAgent steps (paper type classification and attribute extraction).",
+    )
+    parser.add_argument(
+        "--only_clean",
+        action="store_true",
+        help="Only run the cleaning stage (produce papers/ and references.bib), then exit.",
+    )
 
     return parser.parse_args()
 
