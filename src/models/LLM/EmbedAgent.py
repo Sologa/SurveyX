@@ -3,11 +3,26 @@ import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
+import hashlib
+import math
+import random
 import requests
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from tqdm import tqdm
+
+# Optional progress bar; fall back to no-op if not installed
+try:  # noqa: SIM105
+    from tqdm import tqdm as _tqdm  # type: ignore
+except Exception:  # pragma: no cover - optional dep not always present
+    def _tqdm(iterable, **kwargs):  # type: ignore
+        return iterable
+
+# Optional heavy dependency; keep import safe for offline/lightweight runs
+try:  # noqa: SIM105
+    from llama_index.embeddings.huggingface import HuggingFaceEmbedding  # type: ignore
+except Exception:  # pragma: no cover - optional dep not always present
+    HuggingFaceEmbedding = None  # type: ignore
 
 from src.configs.config import (
+    BASE_DIR,
     DEFAULT_EMBED_LOCAL_MODEL,
     DEFAULT_EMBED_ONLINE_MODEL,
     EMBED_REMOTE_URL,
@@ -38,17 +53,37 @@ class EmbedAgent:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {token}",
         }
-        try:
-            self.local_embedding_model = HuggingFaceEmbedding(
-                model_name=DEFAULT_EMBED_ONLINE_MODEL
-            )
-        except Exception as e:
+        # Decide model path/name: prefer local cache dir if present
+        self._use_fallback = False
+        self.local_embedding_model = None
+        local_dir = Path(BASE_DIR) / "models" / "bge-base"
+        preferred_model = (
+            str(local_dir) if local_dir.exists() else DEFAULT_EMBED_ONLINE_MODEL
+        )
+
+        if HuggingFaceEmbedding is not None:
+            try:
+                self.local_embedding_model = HuggingFaceEmbedding(
+                    model_name=preferred_model
+                )
+            except Exception as e:
+                logger.info(
+                    f"{e}\nFailed to load embedding model {preferred_model}, try to use local model {DEFAULT_EMBED_LOCAL_MODEL}."
+                )
+                try:
+                    self.local_embedding_model = HuggingFaceEmbedding(
+                        model_name=DEFAULT_EMBED_LOCAL_MODEL
+                    )
+                except Exception as e2:
+                    logger.warning(
+                        f"{e2}\nHuggingFace embedding unavailable; falling back to deterministic numpy embedding."
+                    )
+                    self._use_fallback = True
+        else:
             logger.info(
-                f"{e}\nFailed to load embedding model {DEFAULT_EMBED_ONLINE_MODEL}, try to use local model {DEFAULT_EMBED_LOCAL_MODEL}."
+                "llama_index not installed; using deterministic numpy embedding fallback."
             )
-            self.local_embedding_model = HuggingFaceEmbedding(
-                model_name=DEFAULT_EMBED_LOCAL_MODEL
-            )
+            self._use_fallback = True
 
     def remote_embed(
         self,
@@ -148,7 +183,7 @@ class EmbedAgent:
                 executor.submit(self.__remote_embed_task, i, texts[i])
                 for i in range(len(texts))
             ]
-            for future in tqdm(
+            for future in _tqdm(
                 as_completed(future_l),
                 desc=desc,
                 total=len(future_l),
@@ -158,11 +193,31 @@ class EmbedAgent:
                 embeddings[i] = embedding
         return embeddings
 
+    def _fallback_embed(self, text: str, dim: int = 768) -> list[float]:
+        """Deterministic lightweight embedding when HF model is unavailable.
+
+        Produces a non-zero, unit-normalized vector seeded from text hash.
+        """
+        # Stable 64-bit seed from SHA256 of text
+        h = hashlib.sha256(text.encode("utf-8", errors="ignore")).digest()
+        seed = int.from_bytes(h[:8], "big", signed=False) % (2**32)
+        rng = random.Random(seed)
+        vec = [rng.gauss(0.0, 1.0) for _ in range(dim)]
+        # Unit normalize to keep cosine similarity meaningful
+        norm = math.sqrt(sum(v * v for v in vec))
+        if norm == 0:
+            return vec
+        return [v / norm for v in vec]
+
     def local_embed(self, text: str) -> list[float]:
+        if self._use_fallback or self.local_embedding_model is None:
+            return self._fallback_embed(text)
         embedding = self.local_embedding_model.get_text_embedding(text)
         return embedding
 
     def batch_local_embed(self, text_l: list[str]) -> list[list[float]]:
+        if self._use_fallback or self.local_embedding_model is None:
+            return [self._fallback_embed(t) for t in text_l]
         embed_documents = self.local_embedding_model.get_text_embedding_batch(
             text_l, show_progress=True
         )

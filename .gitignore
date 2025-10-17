@@ -27,15 +27,42 @@ __pycache__/
 
 # Scripts
 *.ipynb
-sandbox/
+
+# Sandbox - exclude agent workspace but keep structure
+sandbox/*/agent_workspace/*
+!sandbox/*/agent_workspace/.gitignore
+sandbox/*/*.aux
+sandbox/*/*.log
+sandbox/*/*.pdf
+sandbox/*/*.bbl
+sandbox/*/*.blg
+sandbox/*/*.out
+sandbox/*/*.fls
+sandbox/*/*.fdb_latexmk
+
+# LaTeX build artifacts in root
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+texput.*
 
 # eval
 eval/
 
 cache
 datasets
+models
 
 toy.py
 parallel_directories
 backup
 backups
+.env
+
+# Local references (keep example templates only)
+resources/offline_refs/*
+!resources/offline_refs/example/
+!resources/offline_refs/example/**
+
+# External repos
+external/docling/

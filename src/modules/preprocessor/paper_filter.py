@@ -92,7 +92,8 @@ class PaperFilter:
             for paper in papers
         ]
 
-        responses = self.chat_agent.batch_remote_chat(
+        # tolerant to per-item failures
+        responses = self.chat_agent.safe_batch_remote_chat(
             prompt_l=prompts, desc="batch_remote_chat for fine grained sorting..."
         )
 

@@ -141,7 +141,11 @@ class RagRefiner(BaseRefiner):
             sent=sent,
             citations=citations,
         )
-        result = self.chat_agent.remote_chat(prompt)
+        try:
+            result = self.chat_agent.remote_chat(prompt)
+        except Exception as e:
+            logger.error(f"rewrite_sent_with_citations failed: {e}; keep original sentence")
+            result = sent
         bib_content = " \\cite{" + ",".join(bib_list) + "}"
 
         return result + bib_content

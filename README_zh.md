@@ -132,3 +132,117 @@
 ## ⚠️ 免责声明
 
 SurveyX使用先进的语言模型协助生成学术论文。然而，请注意生成的内容仅作为研究辅助工具。用户应验证生成论文的准确性，因为SurveyX无法保证完全符合学术标准。
+
+---
+
+## 🧰 离线开源版本（本仓库）使用指引
+
+> 本仓库提供的开源代码支持离线处理流程：使用您本地的参考文献（Markdown 格式）生成综述。若需完整功能（在线检索、多模态图表检索等），请访问网站端。
+
+### 1）环境准备
+- Python 3.11+
+- 安装依赖：`pip install -r requirements.txt`
+- （可选）LaTeX 环境用于编译 PDF（如 `texlive-full`）
+- PDF 文本抽取工具（用于 PDF→MD 脚本）：
+  - 优先使用 Poppler 的 `pdftotext`（速度与版面更稳定）
+    - macOS: `brew install poppler`
+    - Ubuntu/Debian: `sudo apt-get update && sudo apt-get install -y poppler-utils`
+    - Windows（scoop）: `scoop install poppler`
+  - 备选库：PyMuPDF（fitz）
+    - `pip install pymupdf`
+
+### 2）将 PDF 批量转为 Markdown（.md）
+
+使用 Docling 转换 PDF 为 Markdown，并将所有 `.md` 放在同一目录。
+
+安装与模型准备（推荐，适配 8GB M1）：
+```bash
+pip install -U docling docling-tools
+docling-tools models download -o "$HOME/.cache/docling/models"
+# macOS（可选，建议用于扫描件）
+xcode-select --install
+pip install -U ocrmac
+```
+
+方式 A —— 正式脚本（推荐）：
+```bash
+bash scripts/docling_pdf_to_md.sh /path/to/pdfs resources/offline_refs/your_topic
+```
+- macOS（扫描件）启用 Apple OCR：
+  ```bash
+  DOC_USE_OCRMAC=1 bash scripts/docling_pdf_to_md.sh /path/to/pdfs resources/offline_refs/your_topic
+  ```
+- 环境开关：`DOCLING_ARTIFACTS_PATH`（模型缓存）、`DOC_IMAGE_MODE`（默认 placeholder）、`DOC_DEVICE`（macOS 默认 mps）、`DOC_THREADS`（2）、`DOC_PAGE_BATCH`（2）
+
+- 注意：Docling 的 `--ocr` 是布林开关，不需要也不应传入 `true`。脚本会自动追加 `--ocr`（若启用 ocrmac 也会加上 `--ocr-engine ocrmac`）。
+
+方式 B —— 使用测试脚本：
+```bash
+bash tests/run_test_docling_to_md.sh [输入PDF目录] [输出目录]
+```
+- 默认：从 `resources/offline_refs/pdfs` 读取，输出到 `resources/offline_refs/docling_md_test`
+- 使用环境变量 `DOCLING_ARTIFACTS_PATH="$HOME/.cache/docling/models"`
+
+方式 C —— 直接运行 Docling（8GB M1 推荐参数）：
+```bash
+docling /path/to/pdfs \
+  --to md \
+  --image-export-mode placeholder \
+  --ocr true --ocr-engine ocrmac --ocr-lang en-US \
+  --device mps --num-threads 2 --page-batch-size 2 \
+  --output resources/offline_refs/your_topic \
+  --artifacts-path "$HOME/.cache/docling/models"
+```
+
+说明：
+- 建议使用 `--image-export-mode placeholder`，避免在 Markdown 中内嵌 base64 图片，减小体积并有利于后续处理。
+- 请将所有 `.md` 放在同一个目录，后续作为离线流程的 `--ref_path` 输入。
+
+（可选）校验 Markdown：
+```bash
+bash scripts/validate_md_refs.sh resources/offline_refs/your_topic
+```
+
+### 3）根据清单下载 PDF（included_papers_*.json）
+
+当你已有筛选后的论文清单（如 `resources/included_papers_20250825_balanced.json`），可以批量下载对应 PDF：
+
+```bash
+# Python 方式（可加并发/数量上限等参数）
+python scripts/download_papers.py \
+  --json resources/included_papers_20250825_balanced.json \
+  --out-dir datasets/papers \
+  --concurrency 6
+
+# Shell 包装器（与上等价）
+bash scripts/download_papers.sh \
+  resources/included_papers_20250825_balanced.json \
+  datasets/papers --concurrency 6
+
+# 或使用 run.sh 子指令
+./run.sh download resources/included_papers_20250825_balanced.json datasets/papers -- --concurrency 6
+```
+
+说明：
+- 默认只下载 `is_included: true` 的条目；如需全部下载，添加 `--all`。
+- 输出目录默认 `datasets/papers`，清单会写到 `download_manifest.jsonl`；失败 URL 记录在 `download_failures.txt`。
+- 文件名采用 `id - title.pdf`，自动处理非法字符。
+
+### 4）环境自动激活（可选）
+
+主要脚本（`run.sh`、`scripts/docling_pdf_to_md.sh`、`scripts/download_papers.sh`）会在检测到未处于 `surveyx` 环境且系统存在 conda 时，尝试 source `$(conda info --base)/etc/profile.d/conda.sh` 并执行 `conda activate surveyx`。如未安装 conda 将自动跳过，不会报错。你也可以手动激活：
+
+```bash
+conda activate surveyx
+```
+
+### 4）运行离线流程
+
+```bash
+python tasks/offline_run.py \
+  --title "Your Survey Title" \
+  --key_words "kw1, kw2" \
+  --ref_path resources/offline_refs/your_topic
+```
+
+注意：离线流程要求所有参考文献集中放在单一目录下，且为 `.md` 格式。首行标题与 Abstract 段将提升清洗与抽取质量。
