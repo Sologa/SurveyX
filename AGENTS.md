@@ -59,7 +59,7 @@
 - Workflow 後續階段：`./run.sh workflow <task_id>`（需確認 `outputs/<task_id>/tmp_config.json` 已生成）。
 - 直接調用 Python 入口：`python tasks/offline_run.py --title ... --key_words ... --ref_path ...`。
 - 測試建議：`python -m pytest -q`；若涉及遠端 API 請先取得允許。
-
+ 
 ## 3) 環境變數與密鑰管理
 
 - 根目錄 `.env` 用於本地儲存 API key、token 等敏感資訊；嚴禁將實際值提交到版本庫。
