@@ -40,6 +40,12 @@ sandbox/*/*.out
 sandbox/*/*.fls
 sandbox/*/*.fdb_latexmk
 
+# LaTeX build artifacts in root
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+texput.*
+
 # eval
 eval/
 
