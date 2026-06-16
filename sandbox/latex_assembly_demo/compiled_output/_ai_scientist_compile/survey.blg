@@ -1,0 +1,51 @@
+This is BibTeX, Version 0.99d (TeX Live 2025)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: survey.aux
+The style file: unsrt.bst
+Illegal, another \bibstyle command---line 1611 of file survey.aux
+ : \bibstyle
+ :          {unsrtnat}
+I'm skipping whatever remains of this command
+Database file #1: references.bib
+You've used 149 entries,
+            1791 wiz_defined-function locations,
+            908 strings with 40650 characters,
+and the built_in function-call counts, 31467 in all, are:
+= -- 1450
+> -- 3582
+< -- 2
++ -- 1244
+- -- 1095
+* -- 2237
+:= -- 5472
+add.period$ -- 304
+call.type$ -- 149
+change.case$ -- 149
+chr.to.int$ -- 0
+cite$ -- 149
+duplicate$ -- 809
+empty$ -- 2740
+format.name$ -- 1095
+if$ -- 6580
+int.to.chr$ -- 0
+int.to.str$ -- 149
+missing$ -- 4
+newline$ -- 603
+num.names$ -- 149
+pop$ -- 1029
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 655
+stack$ -- 0
+substring$ -- 112
+swap$ -- 193
+text.length$ -- 2
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 0
+while$ -- 153
+width$ -- 152
+write$ -- 1208
+(There was 1 error message)

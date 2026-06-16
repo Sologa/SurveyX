@@ -1,0 +1,439 @@
+{
+    "title": "Speech Tokenizers and Speech Language Models: A Survey of Representations, Modeling, and Systems",
+    "sections": [
+        {
+            "section title": "Introduction",
+            "description": "Motivate the shift from cascaded ASR\u2192LLM\u2192TTS to unified Speech Language Models (SLMs), set scope across tokenizers/codecs, encoders, decoders, language modeling, training, systems, datasets, evaluation, efficiency, and safety, and state contributions and boundaries.",
+            "subsections": [
+                {
+                    "subsection title": "Why now: From cascaded pipelines to unified end-to-end Speech Language Models",
+                    "description": "Explain technical catalysts (scaling, neural codecs, self-supervised encoders, modality projectors) and user needs (interactive agents, duplex dialogue) that make end-to-end SLMs timely."
+                },
+                {
+                    "subsection title": "Scope, contributions, and taxonomy",
+                    "description": "Define included topics (token types and rates; modeling and generation; alignment and evaluation) and contributions: token taxonomy, comparative design analysis, and unified training/evaluation practices."
+                },
+                {
+                    "subsection title": "The representation\u2013latency\u2013bitrate trilemma",
+                    "description": "Introduce the core tension among semantic fidelity, acoustic detail, and latency/bitrate, framing trade-offs addressed throughout the survey."
+                },
+                {
+                    "subsection title": "Survey roadmap",
+                    "description": "Provide 1\u20132 sentence previews of Sections 2\u201317 to orient readers to background, tokenization, encoders, decoding, modeling, training, systems, expressivity, streaming, datasets, metrics, efficiency, safety, tools, challenges, and conclusions."
+                },
+                {
+                    "subsection title": "Out-of-scope",
+                    "description": "State exclusions (e.g., purely text-only LLMs, classic HMM/GMM pipelines, non-speech audio tasks unless informative) and limit depth on peripheral modalities."
+                }
+            ]
+        },
+        {
+            "section title": "Background and Core Concepts",
+            "description": "Establish the end-to-end pipeline and terminology spanning waveform\u2192representations\u2192tokens\u2192LM\u2192audio, and situate canonical components, datasets, and evaluation families.",
+            "subsections": [
+                {
+                    "subsection title": "From waveform to language model and back: pipeline and terminology",
+                    "description": "Define speech tokenizer/quantizer, neural audio codec, VQ/RVQ, discrete vs continuous tokens, semantic/acoustic/paralinguistic/mixed tokens, encoders, token-to-speech decoders, vocoders."
+                },
+                {
+                    "subsection title": "Canonical building blocks and exemplars",
+                    "description": "Briefly summarize representative models across the stack (Encodec, SoundStream, HiFi-GAN, HuBERT, wav2vec, data2vec, Whisper, PAST) and their roles."
+                },
+                {
+                    "subsection title": "Token interfaces and their rates",
+                    "description": "Clarify semantic vs acoustic vs paralinguistic vs mixed vs continuous interfaces, typical bitrates and sequence lengths, and implications for LM context."
+                },
+                {
+                    "subsection title": "Datasets and evaluation families: a primer",
+                    "description": "Give a compact overview of core corpora (LibriSpeech, Common Voice, VoxPopuli, LibriTTS, CoVoST2, VoxCeleb, GigaSpeech, AISHELL, Fisher) and evaluation families (ABX, sWUGGY/sBLIMP, sStoryCloze, SUPERB, VoxEval, MOS, WER, BLEU, BERTScore, FAD, RTF)."
+                }
+            ]
+        },
+        {
+            "section title": "Speech Tokenization and Neural Audio Codecs",
+            "description": "Survey methods that map audio to discrete units or compact vectors, emphasizing objectives, quantization, rate control, and design trade-offs.",
+            "subsections": [
+                {
+                    "subsection title": "Tokenization objectives and interfaces: the LM-facing contract",
+                    "description": "Specify objectives (reconstruction, semantic preservation, prosody retention) and how token streams interface with LMs in terms of predictability and conditioning."
+                },
+                {
+                    "subsection title": "Quantization mechanisms and codec families",
+                    "description": "Detail VQ/RVQ, residual/product quantization, RQ-Transformer, PQ-VAE, FSQ/BSQ; discuss index collapse prevention, codebook usage, and stability."
+                },
+                {
+                    "subsection title": "From continuous features to units: discretization and codebook design",
+                    "description": "Cover discretization sources (encoder layers), granularity, codebook size/coarseness, and their effects on phone/word/sentence tasks."
+                },
+                {
+                    "subsection title": "Rate and sequence management",
+                    "description": "Discuss frame-rate selection, bitrate/sequence-length trade-offs, acoustic BPE, compression, and robustness under low-bitrate constraints."
+                },
+                {
+                    "subsection title": "Disentanglement and mixed-token designs",
+                    "description": "Explain multi-stream/hybrid tokens separating semantics, acoustics, and prosody; mechanisms for style/content disentanglement."
+                },
+                {
+                    "subsection title": "Continuous and codec-free interfaces",
+                    "description": "Examine continuous token/feature interfaces, codec-free models, and their robustness/latency properties versus discrete units."
+                },
+                {
+                    "subsection title": "Representative methods and empirical findings",
+                    "description": "Compare Encodec, SoundStream, PAST, ALMTokenizer, RepCodec, HASRD, XY Tokenizer, LM-SPT, Universal token learning; summarize bitrate, reconstruction, semantic alignment."
+                },
+                {
+                    "subsection title": "Comparative evaluation axes and open issues",
+                    "description": "Lay out axes (reconstruction, bitrate, sequence length, semantic fidelity, downstream SLM performance, cross-language transfer) and open challenges."
+                }
+            ]
+        },
+        {
+            "section title": "Speech Encoders and Representations",
+            "description": "Review encoder families, representation properties, and their use or discretization for downstream SLMs.",
+            "subsections": [
+                {
+                    "subsection title": "Encoder families and layer-wise specialization",
+                    "description": "Survey HuBERT, wav2vec, data2vec, Whisper, PAST; discuss layer-wise phonetic/semantic specialization and selection."
+                },
+                {
+                    "subsection title": "Fusion and representation selection",
+                    "description": "Describe fusion across layers/models and heuristics for choosing layers for tokenization or direct conditioning."
+                },
+                {
+                    "subsection title": "Robustness, streaming, and deployment constraints",
+                    "description": "Analyze noise/channel robustness, on-device constraints, streaming-friendly encoders, and compute\u2013latency trade-offs."
+                },
+                {
+                    "subsection title": "Diagnosing representation quality",
+                    "description": "Use probes and metrics (ABX, phoneme classification, semantic similarity) to evaluate invariance and task readiness."
+                },
+                {
+                    "subsection title": "Discretization vs continuous conditioning",
+                    "description": "Discuss when to discretize encoder features versus using continuous vectors and implications for LM alignment."
+                },
+                {
+                    "subsection title": "Alignment challenges to text LLMs",
+                    "description": "Highlight modality gap issues (lexical tone, prosody, duration) and strategies to bridge them."
+                }
+            ]
+        },
+        {
+            "section title": "Token to Speech Decoding and Vocoders",
+            "description": "Explain rendering of predicted tokens back to waveform, covering decoders, vocoders, hybrid designs, and controls.",
+            "subsections": [
+                {
+                    "subsection title": "Decoding targets and pathways",
+                    "description": "Compare codec decoders (Encodec/SoundStream), unit vocoders, and token-to-mel pipelines followed by neural vocoders."
+                },
+                {
+                    "subsection title": "Objective families and decoder backbones",
+                    "description": "Summarize GAN (HiFi-GAN), flow/diffusion, and AR/NAR decoders; loss functions for fidelity, prosody, and speaker identity."
+                },
+                {
+                    "subsection title": "Hybrid continuous\u2013discrete approaches",
+                    "description": "Describe combining continuous vectors with semantic tokens to preserve timbre and reduce artifacts."
+                },
+                {
+                    "subsection title": "Conditioning, controllability, and style preservation",
+                    "description": "Cover prompt conditioning, speaker embeddings, residual vectors, and controls for emotion/prosody with latency considerations."
+                }
+            ]
+        },
+        {
+            "section title": "Language Modeling over Speech Tokens",
+            "description": "Detail objectives, architectures, and adaptation strategies for modeling speech token sequences and mixed text\u2013speech streams.",
+            "subsections": [
+                {
+                    "subsection title": "Modeling objectives and architectures",
+                    "description": "Contrast decoder-only AR, NAR, dual-token modeling, and flow-matching; interleaving speech/text streams."
+                },
+                {
+                    "subsection title": "Modality transfer and LLM adaptation",
+                    "description": "Explain cold-start vs continued pretraining, modality projectors, and alignment losses for cross-modal transfer."
+                },
+                {
+                    "subsection title": "Interleaved and duplex modeling exemplars",
+                    "description": "Discuss DualSpeechLM, FlowSLM, VecTokSpeech, Ichigo; handling mixed sequences and duplex interactions."
+                },
+                {
+                    "subsection title": "Empirical regularities and scaling",
+                    "description": "Summarize scaling trends, token-rate effects on perplexity and quality, and implications for capacity planning."
+                }
+            ]
+        },
+        {
+            "section title": "Training Paradigms and Modality Alignment",
+            "description": "Systematize multi-stage training and alignment, including synthetic supervision and diagnostics to avoid catastrophic forgetting.",
+            "subsections": [
+                {
+                    "subsection title": "Multi-stage pipelines",
+                    "description": "Outline pretraining, modality adaptation, supervised fine-tuning, instruction tuning, and post-alignment (e.g., DPO)."
+                },
+                {
+                    "subsection title": "Alignment mechanisms and blueprints",
+                    "description": "Detail projectors, grounding, distillation, Stitch/KL alignment, and tokenizer\u2192LM\u2192decoder objective couplings."
+                },
+                {
+                    "subsection title": "Synthetic and programmatic supervision at scale",
+                    "description": "Describe automatic pairing and scalable instruction datasets (LLaSO, LLaMA Omni-KE, Omni VoiceTextBlender, Slamming), with pros/cons."
+                },
+                {
+                    "subsection title": "Modality alignment, sequence compression, and interface consistency",
+                    "description": "Explain maintaining consistent token interfaces and compressing sequences without eroding alignment."
+                },
+                {
+                    "subsection title": "Diagnostics, ablations, and reporting",
+                    "description": "Recommend practices to measure alignment quality, forgetting, and cross-modal retention with transparent reporting."
+                }
+            ]
+        },
+        {
+            "section title": "System Architectures and Generation Strategies",
+            "description": "Compare cascaded ASR\u2192LLM\u2192TTS and end-to-end SLMs, and categorize generation regimes and scheduling.",
+            "subsections": [
+                {
+                    "subsection title": "Cascaded vs end-to-end vs interleaved",
+                    "description": "Contrast architectures by latency, controllability, and error propagation; include parallel and interleaved variants."
+                },
+                {
+                    "subsection title": "Generative regimes and efficient backbones",
+                    "description": "Cover hierarchical RVQ, flow/diffusion backbones, Groupformer, RQ-Transformer, and multi-token prediction for long horizons."
+                },
+                {
+                    "subsection title": "Sequencing and scheduling taxonomy",
+                    "description": "Define interleaving, parallel, and chunked generation; when to use each for different tasks."
+                },
+                {
+                    "subsection title": "Textless S2S and two-branch designs",
+                    "description": "Discuss joint semantic+acoustic generation, textless S2ST, and two-branch alignment/prediction systems."
+                }
+            ]
+        },
+        {
+            "section title": "Expressivity Paralinguistics and Style Control",
+            "description": "Survey modeling and control of prosody, identity, emotion, and social cues for expressive SLMs.",
+            "subsections": [
+                {
+                    "subsection title": "Prosody, identity, and emotion modeling",
+                    "description": "Review GOAT-SLM, ProsodyLM, SeamlessExpressiveLM and mechanisms capturing prosodic contours and speaker traits."
+                },
+                {
+                    "subsection title": "Tokenization for expressivity",
+                    "description": "Explain word-level prosody tokens, multi-stream acoustic units, and unified tokens that preserve style cues."
+                },
+                {
+                    "subsection title": "Control interfaces and prompts",
+                    "description": "Detail prompts, instructions, and token manipulations for style transfer, role-play, and editability."
+                },
+                {
+                    "subsection title": "Evaluation and watermarking",
+                    "description": "Describe ALLM judges vs human raters for style, controllability metrics, and watermarking for edited segments (e.g., SSR Speech)."
+                }
+            ]
+        },
+        {
+            "section title": "Real Time Streaming and Duplex Dialogue",
+            "description": "Address architectures and policies enabling low-latency streaming, full-duplex interaction, and natural turn-taking.",
+            "subsections": [
+                {
+                    "subsection title": "Latency-aware design",
+                    "description": "Explain chunking, buffering, low-bitrate tokenization, and budgeted inference for interactive agents."
+                },
+                {
+                    "subsection title": "Streaming policies for ASR/S2ST",
+                    "description": "Cover wait-k, read\u2013write, incremental decoding, and their integration with tokenizers and SLMs."
+                },
+                {
+                    "subsection title": "Duplex and turn-taking",
+                    "description": "Discuss barge-in, overlap handling, backchanneling, interruption detection, and conversational policy learning."
+                },
+                {
+                    "subsection title": "Architectures for streaming and duplex",
+                    "description": "Describe streaming encoders and interleaved decoders (SALM Duplex, NTPP, SyncSpeech, Ichigo, Stitch) and real-time deployments."
+                }
+            ]
+        },
+        {
+            "section title": "Datasets Benchmarks and Tasks",
+            "description": "Catalog datasets, benchmark suites, and tasks, with guidance on protocols and multilingual/generalization dimensions.",
+            "subsections": [
+                {
+                    "subsection title": "Core corpora and data taxonomy",
+                    "description": "List major corpora (LibriSpeech, LibriTTS, Common Voice, VoxPopuli, CoVoST2, VoxCeleb, GigaSpeech, AISHELL, Fisher, TELEVAL, CVSS-C) and categorize by modality, domain, and language."
+                },
+                {
+                    "subsection title": "Task\u2013dataset\u2013metric mapping",
+                    "description": "Map tasks (ASR, TTS, S2ST, spoken QA, dialogue, style control, duplex) to datasets and standard protocols."
+                },
+                {
+                    "subsection title": "Benchmark suites and leaderboards",
+                    "description": "Survey SUPERB, VoxEval, ABX/sWUGGY/sBLIMP/sStoryCloze and capability-focused leaderboards."
+                },
+                {
+                    "subsection title": "Multilinguality, robustness, and streaming",
+                    "description": "Highlight datasets for low-resource, noisy, and streaming evaluation and domain shift considerations."
+                },
+                {
+                    "subsection title": "Data quality and reproducibility",
+                    "description": "Discuss splits, contamination checks, licensing, and practices to ensure apples-to-apples comparisons."
+                }
+            ]
+        },
+        {
+            "section title": "Evaluation Metrics and Methodology",
+            "description": "Define objective/subjective metrics and end-to-end protocols, emphasizing rate-aware and streaming/duplex evaluation.",
+            "subsections": [
+                {
+                    "subsection title": "Metric taxonomy and selection by goal",
+                    "description": "Detail MOS, WER, BLEU/BERTScore, FAD, perplexity, codebook usage, bitrate, and reconstruction metrics and when to use them."
+                },
+                {
+                    "subsection title": "End-to-end protocols",
+                    "description": "Specify evaluation setups for speech generation, streaming, and duplex dialogue with task-appropriate prompts and controls."
+                },
+                {
+                    "subsection title": "Bitrate- and token-rate\u2013aware evaluation",
+                    "description": "Design ablations on frame/token rates, semantic fidelity vs acoustic quality, and stability under compression."
+                },
+                {
+                    "subsection title": "Latency metrics and methodology",
+                    "description": "Define real-time factor, time-to-first-token, streaming lag, and duplex overlap handling with standardized measurement."
+                },
+                {
+                    "subsection title": "Human-in-the-loop and statistical rigor",
+                    "description": "Outline protocols for human/ALLM judges, inter-rater reliability, and significance testing."
+                }
+            ]
+        },
+        {
+            "section title": "Efficiency Compression and Deployment",
+            "description": "Analyze model/sequence efficiency, fast decoding, and deployment trade-offs for edge/server and duplex real-time systems.",
+            "subsections": [
+                {
+                    "subsection title": "Parameter and training efficiency",
+                    "description": "Discuss reducing trainable parameters (LoRA/PEFT), partial finetuning, and strategies to avoid catastrophic forgetting."
+                },
+                {
+                    "subsection title": "Model and sequence efficiency",
+                    "description": "Cover acoustic BPE, token-rate reduction, knowledge distillation, TinyWave, compact interleaved models, and sequence parallelization."
+                },
+                {
+                    "subsection title": "Fast decoding and streaming",
+                    "description": "Present runtime strategies (multi-token prediction, speculative decoding, KV-caching) that reduce wall-clock latency."
+                },
+                {
+                    "subsection title": "Bandwidth and edge\u2013server trade-offs",
+                    "description": "Evaluate compute/memory/bandwidth under bitrate constraints, quantization, and MoE specialization for deployment."
+                },
+                {
+                    "subsection title": "Implementation recipes and benchmarks",
+                    "description": "Provide reproducible efficiency benchmarks and deployment patterns for real-time and duplex systems."
+                }
+            ]
+        },
+        {
+            "section title": "Safety Robustness and Ethics",
+            "description": "Survey threat models, safeguards, privacy/fairness issues, and recommended reporting and red-teaming practices.",
+            "subsections": [
+                {
+                    "subsection title": "Threat models and vulnerabilities",
+                    "description": "Detail jailbreaks, adversarial audio (e.g., SPIRIT), and non-spoken perturbations relevant to SLMs."
+                },
+                {
+                    "subsection title": "Defense-in-depth",
+                    "description": "Propose data-time, training-time, decoding-time, and post-hoc safeguards; guardrails and watermarking (SSR Speech)."
+                },
+                {
+                    "subsection title": "Provenance, impersonation, and privacy",
+                    "description": "Discuss provenance tracking, anti-impersonation controls, consent, and privacy-preserving generation."
+                },
+                {
+                    "subsection title": "Robust and invariant representations",
+                    "description": "Examine augmentation-invariant discrete tokens and robustness across languages/dialects/speakers."
+                },
+                {
+                    "subsection title": "Fairness and evaluator bias",
+                    "description": "Address demographic performance disparities, evaluator bias, and data hygiene practices."
+                },
+                {
+                    "subsection title": "Reporting standards and red teaming",
+                    "description": "Recommend safety reporting, alignment documentation, and red-teaming protocols for speech agents."
+                }
+            ]
+        },
+        {
+            "section title": "Open Toolkits Frameworks and Reproducibility",
+            "description": "Review open ecosystems and offer a 5C framework to enable replicable research and fair comparison.",
+            "subsections": [
+                {
+                    "subsection title": "5C overview: Code, Config, Compute, Corpora, Comparison",
+                    "description": "Introduce the 5C lens for end-to-end reproducibility and benchmarking."
+                },
+                {
+                    "subsection title": "Code: Open ecosystems and stacks",
+                    "description": "Highlight ESPnet, SpeechLM, LLaSO, OpenS2S, TinyWave, ComSL and end-to-end recipes."
+                },
+                {
+                    "subsection title": "Config: Reusable building blocks",
+                    "description": "Encourage standardized configs, reference components, and transparent pipelines."
+                },
+                {
+                    "subsection title": "Corpora: Curation and licensing",
+                    "description": "Detail data curation, splitting, licensing, and contamination checks for apples-to-apples usage."
+                },
+                {
+                    "subsection title": "Comparison: Evaluation and testing",
+                    "description": "Promote open evaluation suites, metric protocols, and statistical testing for fair comparisons."
+                },
+                {
+                    "subsection title": "Compute: Budgets and resource table",
+                    "description": "Provide guidance for reporting training hardware budgets and a consolidated resource table blueprint."
+                }
+            ]
+        },
+        {
+            "section title": "Open Challenges and Future Directions",
+            "description": "Synthesize unresolved issues and promising directions for tokens, modeling, alignment, multilinguality, and safety.",
+            "subsections": [
+                {
+                    "subsection title": "Unified vs multi-stream tokens and disentanglement",
+                    "description": "Debate universal tokens vs specialized streams and methods for semantic\u2013acoustic disentanglement."
+                },
+                {
+                    "subsection title": "Long context and conversational memory",
+                    "description": "Identify needs for stable long-context reasoning and memory in duplex, real-world dialogue."
+                },
+                {
+                    "subsection title": "Low-resource and multilingual generalization",
+                    "description": "Outline transfer, data creation at scale, and robust cross-lingual performance goals."
+                },
+                {
+                    "subsection title": "Alignment with text knowledge without forgetting",
+                    "description": "Propose training regimens that retain text LLM knowledge while acquiring speech skills."
+                },
+                {
+                    "subsection title": "Toward a theory of rate vs capacity",
+                    "description": "Argue for principled study of token rate vs LM capacity, cross-layer abstraction alignment, and dual-channel modeling."
+                },
+                {
+                    "subsection title": "Trade-offs and limitations",
+                    "description": "Summarize empirical design guidance and known limitations to inform future research."
+                }
+            ]
+        },
+        {
+            "section title": "Conclusion",
+            "description": "Recap the token taxonomy, modeling and system designs, training/alignment practices, and evaluation, with actionable recommendations.",
+            "subsections": [
+                {
+                    "subsection title": "Key takeaways and recommendations",
+                    "description": "Distill practical guidance on token interfaces, modeling choices, alignment, evaluation, and deployment."
+                },
+                {
+                    "subsection title": "Community resources and standardization",
+                    "description": "Point to open toolkits, datasets, and call for standardized evaluations and open benchmarks."
+                }
+            ]
+        }
+    ]
+}

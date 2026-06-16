@@ -1,0 +1,856 @@
+\begin{thebibliography}{100}
+
+\bibitem{ma2024languagemodelcanlistenwhilespeaking}
+Ziyang Ma, Yakun Song, Chenpeng Du, Jian Cong, Zhuo Chen, Yuping Wang, Yuxuan
+  Wang, and Xie Chen.
+\newblock Language model can listen while speaking, 2024.
+
+\bibitem{wang2024evaluatingtextspeechsynthesislargediscre}
+Siyang Wang and Éva Székely.
+\newblock Evaluating text-to-speech synthesis from a large discrete token-based
+  speech language model, 2024.
+
+\bibitem{wang2023slmbridgethingapbetweenspeechtextfoundat}
+Mingqiu Wang, Wei Han, Izhak Shafran, Zelin Wu, Chung-Cheng Chiu, Yuan Cao,
+  Yongqiang Wang, Nanxin Chen, Yu~Zhang, Hagen Soltau, Paul Rubenstein, Lukas
+  Zilka, Dian Yu, Zhong Meng, Golan Pundak, Nikhil Siddhartha, Johan Schalkwyk,
+  and Yonghui Wu.
+\newblock Slm: Bridge the thin gap between speech and text foundation models,
+  2023.
+
+\bibitem{zeng2024scalingspeechtextpretrainingsyntheticint}
+Aohan Zeng, Zhengxiao Du, Mingdao Liu, Lei Zhang, Shengmin Jiang, Yuxiao Dong,
+  and Jie Tang.
+\newblock Scaling speech-text pre-training with synthetic interleaved data,
+  2024.
+
+\bibitem{peng2024mslms2stmultitaskspeechlanguagemodeltext}
+Yifan Peng, Ilia Kulikov, Yilin Yang, Sravya Popuri, Hui Lu, Changhan Wang, and
+  Hongyu Gong.
+\newblock Mslm-s2st: A multitask speech language model for textless
+  speech-to-speech translation with speaker style preservation, 2024.
+
+\bibitem{nakata2024jchatjapaneselargescalespokendialoguecor}
+Wataru Nakata, Kentaro Seki, Hitomi Yanaka, Yuki Saito, Shinnosuke Takamichi,
+  and Hiroshi Saruwatari.
+\newblock J-chat: Japanese large-scale spoken dialogue corpus for spoken
+  dialogue language modeling, 2024.
+
+\bibitem{wang2024blspemotowardsempatheticlargespeechlangu}
+Chen Wang, Minpeng Liao, Zhongqiang Huang, Junhong Wu, Chengqing Zong, and
+  Jiajun Zhang.
+\newblock Blsp-emo: Towards empathetic large speech-language models, 2024.
+
+\bibitem{guo2025recentadvancesdiscretespeechtokensreview}
+Yiwei Guo, Zhihan Li, Hankun Wang, Bohan Li, Chongtian Shao, Hanglei Zhang,
+  Chenpeng Du, Xie Chen, Shujie Liu, and Kai Yu.
+\newblock Recent advances in discrete speech tokens: A review, 2025.
+
+\bibitem{mousavi2024dasbdiscreteaudiospeechbenchmark}
+Pooneh Mousavi, Luca~Della Libera, Jarod Duret, Artem Ploujnikov, Cem Subakan,
+  and Mirco Ravanelli.
+\newblock Dasb - discrete audio and speech benchmark, 2024.
+
+\bibitem{lu2024destaenhancingspeechlanguagemodelsthroug}
+Ke-Han Lu, Zhehuai Chen, Szu-Wei Fu, He~Huang, Boris Ginsburg, Yu-Chiang~Frank
+  Wang, and Hung yi~Lee.
+\newblock Desta: Enhancing speech language models through descriptive
+  speech-text alignment, 2024.
+
+\bibitem{entry2025towardjointlanguagemodelingspeechunitste}
+Ju-Chieh Chou, Chung-Ming Chien, Wei-Ning Hsu, Karen Livescu, Arun Babu, Alexis
+  Conneau, Alexei Baevski, and Michael Auli.
+\newblock Toward joint language modeling for speech units and text.
+\newblock In {\em Findings of the Association for Computational Linguistics:
+  EMNLP 2023}, page 6582–6593. Association for Computational Linguistics,
+  2023.
+
+\bibitem{ji2025languagecodecbridgingdiscreterepresentat}
+Shengpeng Ji, Minghui Fang, Jialong Zuo, Ziyue Jiang, Dingdong Wang, Hanting
+  Wang, Hai Huang, and Zhou Zhao.
+\newblock Language-codec: Bridging discrete codec representations and speech
+  language models, 2025.
+
+\bibitem{yang2025diffsoundstreamefficientspeechtokenizati}
+Yang Yang, Yunpeng Li, George Sung, Shao-Fu Shih, Craig Dooley, Alessio
+  Centazzo, and Ramanan Rajeswaran.
+\newblock Diffsoundstream: Efficient speech tokenization via diffusion
+  decoding, 2025.
+
+\bibitem{wang2025tadicodectextawarediffusionspeechtokeniz}
+Yuancheng Wang, Dekun Chen, Xueyao Zhang, Junan Zhang, Jiaqi Li, and Zhizheng
+  Wu.
+\newblock Tadicodec: Text-aware diffusion speech tokenizer for speech language
+  modeling, 2025.
+
+\bibitem{baade2024syllablelmlearningcoarsesemanticunitsspe}
+Alan Baade, Puyuan Peng, and David Harwath.
+\newblock Syllablelm: Learning coarse semantic units for speech language
+  models, 2024.
+
+\bibitem{zeng2024glm4voicetowardsintelligenthumanlikeends}
+Aohan Zeng, Zhengxiao Du, Mingdao Liu, Kedong Wang, Shengmin Jiang, Lei Zhao,
+  Yuxiao Dong, and Jie Tang.
+\newblock Glm-4-voice: Towards intelligent and human-like end-to-end spoken
+  chatbot, 2024.
+
+\bibitem{chang2024dcspinspeakerinvariantspeechtokenizerspo}
+Heng-Jui Chang, Hongyu Gong, Changhan Wang, James Glass, and Yu-An Chung.
+\newblock Dc-spin: A speaker-invariant speech tokenizer for spoken language
+  models, 2024.
+
+\bibitem{tan2025ssralignmentawaremodalityconnectorspeech}
+Weiting Tan, Hirofumi Inaguma, Ning Dong, Paden Tomasello, and Xutai Ma.
+\newblock Ssr: Alignment-aware modality connector for speech language models,
+  2025.
+
+\bibitem{wang2024c3llmconditionalmultimodalcontentgenerat}
+Zixuan Wang, Qinkai Duan, Yu-Wing Tai, and Chi-Keung Tang.
+\newblock C3llm: Conditional multimodal content generation using large language
+  models, 2024.
+
+\bibitem{li2025continuousspeechtokenizertext}
+Yixing Li, Ruobing Xie, Xingwu Sun, Yu~Cheng, and Zhanhui Kang.
+\newblock Continuous speech tokenizer in text to speech, 2025.
+
+\bibitem{har-tuv2025pastphoneticacousticspeechtokenizer}
+Nadav Har-Tuv, Or~Tal, and Yossi Adi.
+\newblock Past: Phonetic-acoustic speech tokenizer, 2025.
+
+\bibitem{turetzky2024lastlanguagemodelawarespeechtokenization}
+Arnon Turetzky and Yossi Adi.
+\newblock Last: Language model aware speech tokenization, 2024.
+
+\bibitem{liu2024analyzingmitigatinginconsistencydiscrete}
+Wenrui Liu, Zhifang Guo, Jin Xu, Yuanjun Lv, Yunfei Chu, Zhou Zhao, and Junyang
+  Lin.
+\newblock Analyzing and mitigating inconsistency in discrete audio tokens for
+  neural codec language models, 2024.
+
+\bibitem{ye2024codecdoesmatterexploringsemanticshortcom}
+Zhen Ye, Peiwen Sun, Jiahe Lei, Hongzhan Lin, Xu~Tan, Zheqi Dai, Qiuqiang Kong,
+  Jianyi Chen, Jiahao Pan, Qifeng Liu, Yike Guo, and Wei Xue.
+\newblock Codec does matter: Exploring the semantic shortcoming of codec for
+  audio language model, 2024.
+
+\bibitem{huang2024repcodecspeechrepresentationcodectokeniz}
+Zhichao Huang, Chutong Meng, and Tom Ko.
+\newblock Repcodec: A speech representation codec for speech tokenization,
+  2024.
+
+\bibitem{mousavi2024howshouldweextractdiscreteaudiotokenssel}
+Pooneh Mousavi, Jarod Duret, Salah Zaiem, Luca~Della Libera, Artem Ploujnikov,
+  Cem Subakan, and Mirco Ravanelli.
+\newblock How should we extract discrete audio tokens from self-supervised
+  models?, 2024.
+
+\bibitem{verma2024whispergpthybridrepresentationaudiolarge}
+Prateek Verma.
+\newblock Whisper-gpt: A hybrid representation audio large language model,
+  2024.
+
+\bibitem{li2024investigatingneuralaudiocodecsspeechlang}
+Jiaqi Li, Dongmei Wang, Xiaofei Wang, Yao Qian, Long Zhou, Shujie Liu, Midia
+  Yousefi, Canrun Li, Chung-Hsien Tsai, Zhen Xiao, Yanqing Liu, Junkun Chen,
+  Sheng Zhao, Jinyu Li, Zhizheng Wu, and Michael Zeng.
+\newblock Investigating neural audio codecs for speech language model-based
+  speech generation, 2024.
+
+\bibitem{messica2024nastnoiseawarespeechtokenizationlanguage}
+Shoval Messica and Yossi Adi.
+\newblock Nast: Noise aware speech tokenization for speech language models,
+  2024.
+
+\bibitem{noroozi2024instructiondatagenerationunsupervisedada}
+Vahid Noroozi, Zhehuai Chen, Somshubra Majumdar, Steve Huang, Jagadeesh Balam,
+  and Boris Ginsburg.
+\newblock Instruction data generation and unsupervised adaptation for speech
+  language models, 2024.
+
+\bibitem{hsiao2025analyzingmitigationstrategiescatastrophi}
+Chi-Yuan Hsiao, Ke-Han Lu, Kai-Wei Chang, Chih-Kai Yang, Wei-Chih Chen, and
+  Hung yi~Lee.
+\newblock Analyzing mitigation strategies for catastrophic forgetting in
+  end-to-end training of spoken language models, 2025.
+
+\bibitem{lu2025desta2developinginstructionfollowingspee}
+Ke-Han Lu, Zhehuai Chen, Szu-Wei Fu, Chao-Han~Huck Yang, Jagadeesh Balam, Boris
+  Ginsburg, Yu-Chiang~Frank Wang, and Hung yi~Lee.
+\newblock Desta2: Developing instruction-following speech language model
+  without speech instruction-tuning data, 2025.
+
+\bibitem{wu2023speechgenunlockinggenerativepowerspeechl}
+Haibin Wu, Kai-Wei Chang, Yuan-Kuei Wu, and Hung yi~Lee.
+\newblock Speechgen: Unlocking the generative power of speech language models
+  with prompts, 2023.
+
+\bibitem{hu2025salmduplexefficientdirectmodelingspeechl}
+Ke~Hu, Ehsan Hosseini-Asl, Chen Chen, Edresson Casanova, Subhankar Ghosh, Piotr
+  Żelasko, Zhehuai Chen, Jason Li, Jagadeesh Balam, and Boris Ginsburg.
+\newblock Salm-duplex: Efficient and direct duplex modeling for
+  speech-to-speech language model, 2025.
+
+\bibitem{cui2025thinkbeforeyoutalkenhancingmeaningfuldia}
+Wenqian Cui, Lei Zhu, Xiaohui Li, Zhihan Guo, Haoli Bai, Lu~Hou, and Irwin
+  King.
+\newblock Think before you talk: Enhancing meaningful dialogue generation in
+  full-duplex speech language models with planning-inspired text guidance,
+  2025.
+
+\bibitem{entry2025indicsuperbspeechprocessinguniversalperf}
+Tahir Javed, Kaushal Bhogale, Abhigyan Raman, Pratyush Kumar, Anoop
+  Kunchukuttan, and Mitesh~M. Khapra.
+\newblock Indicsuperb: A speech processing universal performance benchmark for
+  indian languages.
+\newblock {\em Proceedings of the AAAI Conference on Artificial Intelligence},
+  37(11):12942–12950, June 2023.
+
+\bibitem{wang2025incorporatingcontextualparalinguisticund}
+Qiongqiong Wang, Hardik~B. Sailor, Jeremy H.~M. Wong, Tianchi Liu, Shuo Sun,
+  Wenyu Zhang, Muhammad Huzaifah, Nancy Chen, and Ai~Ti Aw.
+\newblock Incorporating contextual paralinguistic understanding in large
+  speech-language models, 2025.
+
+\bibitem{hassid2024textuallypretrainedspeechlanguagemodels}
+Michael Hassid, Tal Remez, Tu~Anh Nguyen, Itai Gat, Alexis Conneau, Felix
+  Kreuk, Jade Copet, Alexandre Defossez, Gabriel Synnaeve, Emmanuel Dupoux, Roy
+  Schwartz, and Yossi Adi.
+\newblock Textually pretrained speech language models, 2024.
+
+\bibitem{onda2025benchmarkingprosodyencodingdiscretespeec}
+Kentaro Onda, Satoru Fukayama, Daisuke Saito, and Nobuaki Minematsu.
+\newblock Benchmarking prosody encoding in discrete speech tokens, 2025.
+
+\bibitem{vashishth2024stabspeechtokenizerassessmentbenchmark}
+Shikhar Vashishth, Harman Singh, Shikhar Bharadwaj, Sriram Ganapathy, Chulayuth
+  Asawaroengchai, Kartik Audhkhasi, Andrew Rosenberg, Ankur Bapna, and Bhuvana
+  Ramabhadran.
+\newblock Stab: Speech tokenizer assessment benchmark, 2024.
+
+\bibitem{maimon2025salmonsuiteacousticlanguagemodelevaluati}
+Gallil Maimon, Amit Roth, and Yossi Adi.
+\newblock Salmon: A suite for acoustic language model evaluation, 2025.
+
+\bibitem{zhao2024textlessstreamingspeechtranslationsemant}
+Jinzheng Zhao, Niko Moritz, Egor Lakomkin, Ruiming Xie, Zhiping Xiu, Katerina
+  Zmolikova, Zeeshan Ahmed, Yashesh Gaur, Duc Le, and Christian Fuegen.
+\newblock Textless streaming speech-to-speech translation using semantic speech
+  tokens, 2024.
+
+\bibitem{min2025speechretrievalaugmentedgenerationwithou}
+Do~June Min, Karel Mundnich, Andy Lapastora, Erfan Soltanmohammadi, Srikanth
+  Ronanki, and Kyu Han.
+\newblock Speech retrieval-augmented generation without automatic speech
+  recognition, 2025.
+
+\bibitem{wang2025dualspeechlmtowardsunifiedspeechundersta}
+Yuanyuan Wang, Dongchao Yang, Yiwen Shao, Hangting Chen, Jiankun Zhao, Zhiyong
+  Wu, Helen Meng, and Xixin Wu.
+\newblock Dualspeechlm: Towards unified speech understanding and generation via
+  dual speech token modeling with large language models, 2025.
+
+\bibitem{cui2025voxevalbenchmarkingknowledgeunderstandin}
+Wenqian Cui, Xiaoqi Jiao, Ziqiao Meng, and Irwin King.
+\newblock Voxeval: Benchmarking the knowledge understanding capabilities of
+  end-to-end spoken language models, 2025.
+
+\bibitem{fily2024establishingdegreesclosenessbetweenaudio}
+Maxime Fily, Guillaume Wisniewski, Severine Guillaume, Gilles Adda, and Alexis
+  Michaud.
+\newblock Establishing degrees of closeness between audio recordings along
+  different dimensions using large-scale cross-lingual models, 2024.
+
+\bibitem{wang2025bossbeyondsemanticspeech}
+Qing Wang, Zehan Li, Hang Lv, Hongjie Chen, Yaodong Song, Jian Kang, Jie Lian,
+  Jie Li, Yongxiang Li, Zhongjiang He, and Xuelong Li.
+\newblock Boss: Beyond-semantic speech, 2025.
+
+\bibitem{chiang2025stitchsimultaneousthinkingtalkingchunked}
+Cheng-Han Chiang, Xiaofei Wang, Linjie Li, Chung-Ching Lin, Kevin Lin, Shujie
+  Liu, Zhendong Wang, Zhengyuan Yang, Hung yi~Lee, and Lijuan Wang.
+\newblock Stitch: Simultaneous thinking and talking with chunked reasoning for
+  spoken language models, 2025.
+
+\bibitem{jo2025lmsptalignedsemanticdistillationspeechto}
+Daejin Jo, Jeeyoung Yun, Byungseok Roh, and Sungwoong Kim.
+\newblock Lm-spt: Lm-aligned semantic distillation for speech tokenization,
+  2025.
+
+\bibitem{liu2024enhancingautomatedaudiocaptioninglargela}
+Jizhong Liu, Gang Li, Junbo Zhang, Heinrich Dinkel, Yongqing Wang, Zhiyong Yan,
+  Yujun Wang, and Bin Wang.
+\newblock Enhancing automated audio captioning via large language models with
+  optimized audio encoding, 2024.
+
+\bibitem{dao2025ichigomixedmodalearlyfusionrealtimevoice}
+Alan Dao, Dinh~Bach Vu, and Huy~Hoang Ha.
+\newblock Ichigo: Mixed-modal early-fusion realtime voice assistant, 2025.
+
+\bibitem{shu2023llasmlargelanguagespeechmodel}
+Yu~Shu, Siwei Dong, Guangyao Chen, Wenhao Huang, Ruihua Zhang, Daochen Shi,
+  Qiqi Xiang, and Yemin Shi.
+\newblock Llasm: Large language and speech model, 2023.
+
+\bibitem{poli2025fastabxlibraryefficientcomputationabxdis}
+Maxime Poli, Emmanuel Chemla, and Emmanuel Dupoux.
+\newblock fastabx: A library for efficient computation of abx discriminability,
+  2025.
+
+\bibitem{bai2025dmelspeechtokenizationmadesimple}
+Richard~He Bai, Tatiana Likhomanenko, Ruixiang Zhang, Zijin Gu, Zakaria
+  Aldeneh, and Navdeep Jaitly.
+\newblock dmel: Speech tokenization made simple, 2025.
+
+\bibitem{elmakies2025unsupervisedspeechsegmentationgeneralapp}
+Avishai Elmakies, Omri Abend, and Yossi Adi.
+\newblock Unsupervised speech segmentation: A general approach using speech
+  language models, 2025.
+
+\bibitem{yang2025almtokenizerlowbitratesemanticrichaudioc}
+Dongchao Yang, Songxiang Liu, Haohan Guo, Jiankun Zhao, Yuanyuan Wang, Helin
+  Wang, Zeqian Ju, Xubo Liu, Xueyuan Chen, Xu~Tan, Xixin Wu, and Helen Meng.
+\newblock Almtokenizer: A low-bitrate and semantic-rich audio codec tokenizer
+  for audio language modeling, 2025.
+
+\bibitem{maimon2025scalinganalysisinterleavedspeechtextlang}
+Gallil Maimon, Michael Hassid, Amit Roth, and Yossi Adi.
+\newblock Scaling analysis of interleaved speech-text language models, 2025.
+
+\bibitem{tseng2025evaluationllmsspeechisoftenflawedtestset}
+Yuan Tseng, Titouan Parcollet, Rogier van Dalen, Shucong Zhang, and Sourav
+  Bhattacharya.
+\newblock Evaluation of llms in speech is often flawed: Test set contamination
+  in large language models for speech recognition, 2025.
+
+\bibitem{wang2024whydospeechlanguagemodelsfailgeneratesem}
+Hankun Wang, Haoran Wang, Yiwei Guo, Zhihan Li, Chenpeng Du, Xie Chen, and Kai
+  Yu.
+\newblock Why do speech language models fail to generate semantically coherent
+  outputs? a modality evolving perspective, 2024.
+
+\bibitem{nguyen2025qwenvsgemmaintegrationwhispercomparative}
+Tuan Nguyen, Long-Vu Hoang, and Huy-Dat Tran.
+\newblock Qwen vs. gemma integration with whisper: A comparative study in
+  multilingual speechllm systems, 2025.
+
+\bibitem{li2025seewossubmissionmlcslmlessonslearnedspee}
+Bo~Li, Chengben Xu, and Wufeng Zhang.
+\newblock Seewo's submission to mlc-slm: Lessons learned from speech reasoning
+  language models, 2025.
+
+\bibitem{tsunoo2024decoderonlyarchitecturespeechrecognition}
+Emiru Tsunoo, Hayato Futami, Yosuke Kashiwagi, Siddhant Arora, and Shinji
+  Watanabe.
+\newblock Decoder-only architecture for speech recognition with ctc prompts and
+  text data augmentation, 2024.
+
+\bibitem{kando2025exploringeffectsegmentationvocabularysiz}
+Shunsuke Kando, Yusuke Miyao, and Shinnosuke Takamichi.
+\newblock Exploring the effect of segmentation and vocabulary size on speech
+  tokenization for speech language models, 2025.
+
+\bibitem{wu2024speechcomposerunifyingmultiplespeechtask}
+Yihan Wu, Soumi Maiti, Yifan Peng, Wangyou Zhang, Chenda Li, Yuyue Wang, Xihua
+  Wang, Shinji Watanabe, and Ruihua Song.
+\newblock Speechcomposer: Unifying multiple speech tasks with prompt
+  composition, 2024.
+
+\bibitem{chen2023reducingbarriersselfsupervisedlearninghu}
+William Chen, Xuankai Chang, Yifan Peng, Zhaoheng Ni, Soumi Maiti, and Shinji
+  Watanabe.
+\newblock Reducing barriers to self-supervised learning: Hubert pre-training
+  with academic compute, 2023.
+
+\bibitem{shen2023wavesyntaxprobingspokenlanguagemodels}
+Gaofei Shen, Afra Alishahi, Arianna Bisazza, and Grzegorz Chrupała.
+\newblock Wave to syntax: Probing spoken language models for syntax, 2023.
+
+\bibitem{hsu2024exploringcontextlearningtextlessspeechla}
+Ming-Hao Hsu, Kai-Wei Chang, Shang-Wen Li, and Hung yi~Lee.
+\newblock Exploring in-context learning of textless speech language model for
+  speech classification tasks, 2024.
+
+\bibitem{shen2024acousticbpespeechgenerationdiscretetoken}
+Feiyu Shen, Yiwei Guo, Chenpeng Du, Xie Chen, and Kai Yu.
+\newblock Acoustic bpe for speech generation with discrete tokens, 2024.
+
+\bibitem{xue2024improvingaudiocodecbasedzeroshottextspee}
+Jinlong Xue, Yayue Deng, Yicheng Han, Yingming Gao, and Ya~Li.
+\newblock Improving audio codec-based zero-shot text-to-speech synthesis with
+  multi-modal context and large language model, 2024.
+
+\bibitem{huang2023holisticcascadesystembenchmarkhumanevalu}
+Wen-Chin Huang, Benjamin Peloquin, Justine Kao, Changhan Wang, Hongyu Gong,
+  Elizabeth Salesky, Yossi Adi, Ann Lee, and Peng-Jen Chen.
+\newblock A holistic cascade system, benchmark, and human evaluation protocol
+  for expressive speech-to-speech translation, 2023.
+
+\bibitem{qian2025prosodylmuncoveringemergingprosodyproces}
+Kaizhi Qian, Xulin Fan, Junrui Ni, Slava Shechtman, Mark Hasegawa-Johnson,
+  Chuang Gan, and Yang Zhang.
+\newblock Prosodylm: Uncovering the emerging prosody processing capabilities in
+  speech language models, 2025.
+
+\bibitem{chen2025emovaempoweringlanguagemodelsseehearspea}
+Kai Chen, Yunhao Gou, Runhui Huang, Zhili Liu, Daxin Tan, Jing Xu, Chunwei
+  Wang, Yi~Zhu, Yihan Zeng, Kuo Yang, Dingdong Wang, Kun Xiang, Haoyuan Li,
+  Haoli Bai, Jianhua Han, Xiaohui Li, Weike Jin, Nian Xie, Yu~Zhang, James~T.
+  Kwok, Hengshuang Zhao, Xiaodan Liang, Dit-Yan Yeung, Xiao Chen, Zhenguo Li,
+  Wei Zhang, Qun Liu, Jun Yao, Lanqing Hong, Lu~Hou, and Hang Xu.
+\newblock Emova: Empowering language models to see, hear and speak with vivid
+  emotions, 2025.
+
+\bibitem{sadok2025vectorquantizedmaskedautoencoderaudiovis}
+Samir Sadok, Simon Leglaive, and Renaud Séguier.
+\newblock A vector quantized masked autoencoder for audiovisual speech emotion
+  recognition, 2025.
+
+\bibitem{huang2025dynamicsuperbphase2collaborativelyexpand}
+Chien yu~Huang, Wei-Chih Chen, Shu wen Yang, Andy~T. Liu, Chen-An Li, Yu-Xiang
+  Lin, Wei-Cheng Tseng, Anuj Diwan, Yi-Jen Shih, Jiatong Shi, William Chen,
+  Chih-Kai Yang, Wenze Ren, Xuanjun Chen, Chi-Yuan Hsiao, Puyuan Peng,
+  Shih-Heng Wang, Chun-Yi Kuan, Ke-Han Lu, Kai-Wei Chang, Fabian
+  Ritter-Gutierrez, Kuan-Po Huang, Siddhant Arora, You-Kuan Lin, Ming~To
+  Chuang, Eunjung Yeo, Kalvin Chang, Chung-Ming Chien, Kwanghee Choi, Jun-You
+  Wang, Cheng-Hsiu Hsieh, Yi-Cheng Lin, Chee-En Yu, I-Hsiang Chiu, Heitor~R.
+  Guimarães, Jionghao Han, Tzu-Quan Lin, Tzu-Yuan Lin, Homu Chang, Ting-Wu
+  Chang, Chun~Wei Chen, Shou-Jen Chen, Yu-Hua Chen, Hsi-Chun Cheng, Kunal
+  Dhawan, Jia-Lin Fang, Shi-Xin Fang, Kuan-Yu~Fang Chiang, Chi~An Fu, Hsien-Fu
+  Hsiao, Ching~Yu Hsu, Shao-Syuan Huang, Lee~Chen Wei, Hsi-Che Lin, Hsuan-Hao
+  Lin, Hsuan-Ting Lin, Jian-Ren Lin, Ting-Chun Liu, Li-Chun Lu, Tsung-Min Pai,
+  Ankita Pasad, Shih-Yun~Shan Kuan, Suwon Shon, Yuxun Tang, Yun-Shao Tsai,
+  Jui-Chiang Wei, Tzu-Chieh Wei, Chengxi Wu, Dien-Ruei Wu, Chao-Han~Huck Yang,
+  Chieh-Chi Yang, Jia~Qi Yip, Shao-Xiang Yuan, Vahid Noroozi, Zhehuai Chen,
+  Haibin Wu, Karen Livescu, David Harwath, Shinji Watanabe, and Hung yi~Lee.
+\newblock Dynamic-superb phase-2: A collaboratively expanding benchmark for
+  measuring the capabilities of spoken language models with 180 tasks, 2025.
+
+\bibitem{fan2025whatmakesgoodspeechtokenizerllmcentricge}
+Xiaoran Fan, Zhichao Sun, Yangfan Gao, Jingfei Xiong, Hang Yan, Yifei Cao,
+  Jiajun Sun, Shuo Li, Zhihao Zhang, Zhiheng Xi, Yuhao Zhou, Senjie Jin,
+  Changhao Jiang, Junjie Ye, Ming Zhang, Rui Zheng, Zhenhua Han, Yunke Zhang,
+  Demei Yan, Shaokang Dong, Tao Ji, Tao Gui, Qi~Zhang, and Xuanjing Huang.
+\newblock What makes a good speech tokenizer for llm-centric speech generation?
+  a systematic study, 2025.
+
+\bibitem{algayres2023generativespokenlanguagemodelbasedcontin}
+Robin Algayres, Yossi Adi, Tu~Anh Nguyen, Jade Copet, Gabriel Synnaeve, Benoit
+  Sagot, and Emmanuel Dupoux.
+\newblock Generative spoken language model based on continuous word-sized audio
+  tokens, 2023.
+
+\bibitem{ahasan2025dmcodecdistillingmultimodalrepresentatio}
+Md~Mubtasim Ahasan, Md~Fahim, Tasnim Mohiuddin, A~K M~Mahbubur Rahman, Aman
+  Chadha, Tariq Iqbal, M~Ashraful Amin, Md~Mofijul Islam, and Amin~Ahsan Ali.
+\newblock Dm-codec: Distilling multimodal representations for speech
+  tokenization, 2025.
+
+\bibitem{tseng2025tastetextalignedspeechtokenizationembedd}
+Liang-Hsuan Tseng, Yi-Chang Chen, Kuan-Yi Lee, Da-Shan Shiu, and Hung yi~Lee.
+\newblock Taste: Text-aligned speech tokenization and embedding for spoken
+  language modeling, 2025.
+
+\bibitem{visser2025spokenlanguagemodelingdurationpenalizeds}
+Nicol Visser and Herman Kamper.
+\newblock Spoken language modeling with duration-penalized self-supervised
+  units, 2025.
+
+\bibitem{gong2025xytokenizermitigatingsemanticacousticcon}
+Yitian Gong, Luozhijie Jin, Ruifan Deng, Dong Zhang, Xin Zhang, Qinyuan Cheng,
+  Zhaoye Fei, Shimin Li, and Xipeng Qiu.
+\newblock Xy-tokenizer: Mitigating the semantic-acoustic conflict in
+  low-bitrate speech codecs, 2025.
+
+\bibitem{zhang2025impactframeratesspeechtokenizercasestudy}
+Haoyang Zhang, Hexin Liu, Xiangyu Zhang, Qiquan Zhang, Yuchen Hu, Junqi Zhao,
+  Fei Tian, Xuerui Yang, Leibny~Paola Garcia, and Eng~Siong Chng.
+\newblock Impact of frame rates on speech tokenizer: A case study on mandarin
+  and english, 2025.
+
+\bibitem{li2024effectivenessacousticbpedecoderonlytts}
+Bohan Li, Feiyu Shen, Yiwei Guo, Shuai Wang, Xie Chen, and Kai Yu.
+\newblock On the effectiveness of acoustic bpe in decoder-only tts, 2024.
+
+\bibitem{zhang2024speechtokenizerunifiedspeechtokenizerlar}
+Xin Zhang, Dong Zhang, Shimin Li, Yaqian Zhou, and Xipeng Qiu.
+\newblock Speechtokenizer: Unified speech tokenizer for speech large language
+  models, 2024.
+
+\bibitem{chen2024bestowefficientstreamablespeechlanguagem}
+Zhehuai Chen, He~Huang, Oleksii Hrinchuk, Krishna~C. Puvvada, Nithin~Rao
+  Koluguri, Piotr Żelasko, Jagadeesh Balam, and Boris Ginsburg.
+\newblock Bestow: Efficient and streamable speech language model with the best
+  of two worlds in gpt and t5, 2024.
+
+\bibitem{xu2025optimaltransportregularizationspeechtext}
+Wenze Xu, Chun Wang, Jiazhen Yu, Sheng Chen, Liang Gao, and Weihong Deng.
+\newblock Optimal transport regularization for speech text alignment in spoken
+  language models, 2025.
+
+\bibitem{lavechin2023babyslmlanguageacquisitionfriendlybenchm}
+Marvin Lavechin, Yaya Sy, Hadrien Titeux, María Andrea~Cruz Blandón, Okko
+  Räsänen, Hervé Bredin, Emmanuel Dupoux, and Alejandrina Cristia.
+\newblock Babyslm: language-acquisition-friendly benchmark of self-supervised
+  spoken language models, 2023.
+
+\bibitem{li2025transsionmultilingualspeechrecognitionsy}
+Xiaoxiao Li, An~Zhu, Youhai Jiang, and Fengjie Zhu.
+\newblock Transsion multilingual speech recognition system for mlc-slm 2025
+  challenge, 2025.
+
+\bibitem{entry2025selectivehubertselfsupervisedpretraining}
+Jingru Lin, Meng Ge, Wupeng Wang, Haizhou Li, and Mengling Feng.
+\newblock Selective hubert: Self-supervised pre-training for target speaker in
+  clean and mixture speech.
+\newblock {\em IEEE Signal Processing Letters}, 31:1014–1018, 2024.
+
+\bibitem{hussein2025hasrdhierarchicalacousticsemanticreprese}
+Amir Hussein, Sameer Khurana, Gordon Wichern, Francois~G. Germain, and
+  Jonathan~Le Roux.
+\newblock Hasrd: Hierarchical acoustic and semantic representation
+  disentanglement, 2025.
+
+\bibitem{mei2025shnumultilingualconversationalspeechreco}
+Yuxiang Mei, Yuang Zheng, Dongxing Xu, and Yanhua Long.
+\newblock Shnu multilingual conversational speech recognition system for
+  interspeech 2025 mlc-slm challenge, 2025.
+
+\bibitem{lin2025dkusystemmultispeakerautomaticspeechreco}
+Yuke Lin, Ming Cheng, Ze~Li, and Ming Li.
+\newblock The dku system for multi-speaker automatic speech recognition in
+  mlc-slm challenge, 2025.
+
+\bibitem{tan2025drvoiceparallelspeechtextvoiceconversati}
+Chao-Hong Tan, Qian Chen, Wen Wang, Chong Deng, Qinglin Zhang, Luyao Cheng, Hai
+  Yu, Xin Zhang, Xiang Lv, Tianyu Zhao, Chong Zhang, Yukun Ma, Yafeng Chen, Hui
+  Wang, Jiaqing Liu, and Jieping Ye.
+\newblock Drvoice: Parallel speech-text voice conversation model via
+  dual-resolution speech representations, 2025.
+
+\bibitem{deng2025simuls2sllmunlockingsimultaneousinferenc}
+Keqi Deng, Wenxi Chen, Xie Chen, and Philip~C. Woodland.
+\newblock Simuls2s-llm: Unlocking simultaneous inference of speech llms for
+  speech-to-speech translation, 2025.
+
+\bibitem{cho2025sylbersyllabicembeddingrepresentationspe}
+Cheol~Jun Cho, Nicholas Lee, Akshat Gupta, Dhruv Agarwal, Ethan Chen, Alan~W
+  Black, and Gopala~K. Anumanchipalli.
+\newblock Sylber: Syllabic embedding representation of speech from raw audio,
+  2025.
+
+\bibitem{gao2024gendistillerdistillingpretrainedlanguage}
+Yingying Gao, Shilei Zhang, Chao Deng, and Junlan Feng.
+\newblock Gendistiller: Distilling pre-trained language models based on an
+  autoregressive generative model, 2024.
+
+\bibitem{yuan2024continuousspeechtokensmakesllmsrobustmul}
+Ze~Yuan, Yanqing Liu, Shujie Liu, and Sheng Zhao.
+\newblock Continuous speech tokens makes llms robust multi-modality learners,
+  2024.
+
+\bibitem{wang2024comparativestudydiscretespeechtokenssema}
+Dingdong Wang, Mingyu Cui, Dongchao Yang, Xueyuan Chen, and Helen Meng.
+\newblock A comparative study of discrete speech tokens for semantic-related
+  tasks with large language models, 2024.
+
+\bibitem{guo2025streamuniachievingstreamingspeechtransla}
+Shoutao Guo, Xiang Li, Mengge Liu, Wei Chen, and Yang Feng.
+\newblock Streamuni: Achieving streaming speech translation with a unified
+  large speech-language model, 2025.
+
+\bibitem{chou2025flowslmjointlearninglinguisticacousticin}
+Ju-Chieh Chou, Jiawei Zhou, and Karen Livescu.
+\newblock Flow-slm: Joint learning of linguistic and acoustic information for
+  spoken language modeling, 2025.
+
+\bibitem{song2025goatttsexpressiverealisticspeechgenerati}
+Yaodong Song, Hongjie Chen, Jie Lian, Yuxin Zhang, Guangmin Xia, Zehan Li,
+  Genliang Zhao, Jian Kang, Jie Li, Yongxiang Li, and Xuelong Li.
+\newblock Goat-tts: Expressive and realistic speech generation via a
+  dual-branch llm, 2025.
+
+\bibitem{chen2025variationalframeworkimprovingnaturalness}
+Li-Wei Chen, Takuya Higuchi, Zakaria Aldeneh, Ahmed~Hussen Abdelaziz, and
+  Alexander Rudnicky.
+\newblock A variational framework for improving naturalness in generative
+  spoken language models, 2025.
+
+\bibitem{jiang2025universalspeechtokenlearninglowbitratene}
+Xue Jiang, Xiulian Peng, Yuan Zhang, and Yan Lu.
+\newblock Universal speech token learning via low-bitrate neural codec and
+  pretrained representations, 2025.
+
+\bibitem{fang2025llamaomniseamlessspeechinteractionlargel}
+Qingkai Fang, Shoutao Guo, Yan Zhou, Zhengrui Ma, Shaolei Zhang, and Yang Feng.
+\newblock Llama-omni: Seamless speech interaction with large language models,
+  2025.
+
+\bibitem{maimon2025slammingtrainingspeechlanguagemodelonegp}
+Gallil Maimon, Avishai Elmakies, and Yossi Adi.
+\newblock Slamming: Training a speech language model on one gpu in a day, 2025.
+
+\bibitem{cuervo2025textspeechlanguagemodelsimprovedcrossmod}
+Santiago Cuervo, Adel Moumen, Yanis Labrak, Sameer Khurana, Antoine Laurent,
+  Mickael Rouvier, and Ricard Marxer.
+\newblock Text-speech language models with improved cross-modal transfer by
+  aligning abstraction levels, 2025.
+
+\bibitem{shao2025deeptalktowardsseamlesssmartspeechintera}
+Hang Shao, Heting Gao, Yunhang Shen, Jiawei Chen, Lijiang Li, Zuwei Long,
+  Bo~Tong, Ke~Li, and Xing Sun.
+\newblock Deeptalk: Towards seamless and smart speech interaction with adaptive
+  modality-specific moe, 2025.
+
+\bibitem{park2025longformspeechgenerationspokenlanguagemo}
+Se~Jin Park, Julian Salazar, Aren Jansen, Keisuke Kinoshita, Yong~Man Ro, and
+  RJ~Skerry-Ryan.
+\newblock Long-form speech generation with spoken language models, 2025.
+
+\bibitem{cuervo2024scalingpropertiesspeechlanguagemodels}
+Santiago Cuervo and Ricard Marxer.
+\newblock Scaling properties of speech language models, 2024.
+
+\bibitem{nachmani2024spokenquestionansweringspeechcontinuatio}
+Eliya Nachmani, Alon Levkovitch, Roy Hirsch, Julian Salazar, Chulayuth
+  Asawaroengchai, Soroosh Mariooryad, Ehud Rivlin, RJ~Skerry-Ryan, and
+  Michelle~Tadmor Ramanovich.
+\newblock Spoken question answering and speech continuation using
+  spectrogram-powered llm, 2024.
+
+\bibitem{sun2023contextualbiasingnamedentitieslargelangu}
+Chuanneng Sun, Zeeshan Ahmed, Yingyi Ma, Zhe Liu, Lucas Kabela, Yutong Pang,
+  and Ozlem Kalinli.
+\newblock Contextual biasing of named-entities with large language models,
+  2023.
+
+\bibitem{peng2025voicetextblenderaugmentinglargelanguagem}
+Yifan Peng, Krishna~C. Puvvada, Zhehuai Chen, Piotr Zelasko, He~Huang, Kunal
+  Dhawan, Ke~Hu, Shinji Watanabe, Jagadeesh Balam, and Boris Ginsburg.
+\newblock Voicetextblender: Augmenting large language models with speech
+  capabilities via single-stage joint speech-text supervised fine-tuning, 2025.
+
+\bibitem{chen2025goatslmspokenlanguagemodelparalinguistic}
+Hongjie Chen, Zehan Li, Yaodong Song, Wenming Deng, Yitong Yao, Yuxin Zhang,
+  Hang Lv, Xuechao Zhu, Jian Kang, Jie Lian, Jie Li, Chao Wang, Shuangyong
+  Song, Yongxiang Li, Zhongjiang He, and Xuelong Li.
+\newblock Goat-slm: A spoken language model with paralinguistic and speaker
+  characteristic awareness, 2025.
+
+\bibitem{tian2025espnetspeechlmopenspeechlanguagemodeltoo}
+Jinchuan Tian, Jiatong Shi, William Chen, Siddhant Arora, Yoshiki Masuyama,
+  Takashi Maekaku, Yihan Wu, Junyi Peng, Shikhar Bharadwaj, Yiwen Zhao, Samuele
+  Cornell, Yifan Peng, Xiang Yue, Chao-Han~Huck Yang, Graham Neubig, and Shinji
+  Watanabe.
+\newblock Espnet-speechlm: An open speech language model toolkit, 2025.
+
+\bibitem{yang2024buildingtaiwanesemandarinspokenlanguagem}
+Chih-Kai Yang, Yu-Kuan Fu, Chen-An Li, Yi-Cheng Lin, Yu-Xiang Lin, Wei-Chih
+  Chen, Ho~Lam Chung, Chun-Yi Kuan, Wei-Ping Huang, Ke-Han Lu, Tzu-Quan Lin,
+  Hsiu-Hsuan Wang, En-Pei Hu, Chan-Jan Hsu, Liang-Hsuan Tseng, I-Hsiang Chiu,
+  Ulin Sanga, Xuanjun Chen, Po~chun Hsu, Shu wen Yang, and Hung yi~Lee.
+\newblock Building a taiwanese mandarin spoken language model: A first attempt,
+  2024.
+
+\bibitem{song2024ellavstableneuralcodeclanguagemodelingal}
+Yakun Song, Zhuo Chen, Xiaofei Wang, Ziyang Ma, and Xie Chen.
+\newblock Ella-v: Stable neural codec language modeling with alignment-guided
+  sequence reordering, 2024.
+
+\bibitem{li2024masksrmaskedlanguagemodelfullbandspeechr}
+Xu~Li, Qirui Wang, and Xiaoyu Liu.
+\newblock Masksr: Masked language model for full-band speech restoration, 2024.
+
+\bibitem{lu2024fastadaspmultitaskadaptedefficientinfere}
+Yichen Lu, Jiaqi Song, Chao-Han~Huck Yang, and Shinji Watanabe.
+\newblock Fastadasp: Multitask-adapted efficient inference for large speech
+  language model, 2024.
+
+\bibitem{peri2024speechguardexploringadversarialrobustnes}
+Raghuveer Peri, Sai~Muralidhar Jayanthi, Srikanth Ronanki, Anshu Bhatia, Karel
+  Mundnich, Saket Dingliwal, Nilaksh Das, Zejiang Hou, Goeric Huybrechts,
+  Srikanth Vishnubhotla, Daniel Garcia-Romero, Sundararajan Srinivasan, Kyu~J
+  Han, and Katrin Kirchhoff.
+\newblock Speechguard: Exploring the adversarial robustness of multimodal large
+  language models, 2024.
+
+\bibitem{djanibekov2025spiritpatchingspeechlanguagemodelsagains}
+Amirbek Djanibekov, Nurdaulet Mukhituly, Kentaro Inui, Hanan Aldarmaki, and
+  Nils Lukas.
+\newblock Spirit: Patching speech language models against jailbreak attacks,
+  2025.
+
+\bibitem{wang2025dualinformationspeechlanguagemodelsemoti}
+Chun Wang, Chenyang Liu, Wenze Xu, and Weihong Deng.
+\newblock Dual information speech language models for emotional conversations,
+  2025.
+
+\bibitem{futeral2025madspeechmeasuresacousticdiversity}
+Matthieu Futeral, Andrea Agostinelli, Marco Tagliasacchi, Neil Zeghidour, and
+  Eugene Kharitonov.
+\newblock Mad speech: Measures of acoustic diversity of speech, 2025.
+
+\bibitem{peng2024empiricalstudyspeechlanguagemodelsprompt}
+Yifan Peng, Ilia Kulikov, Yilin Yang, Sravya Popuri, Hui Lu, Changhan Wang, and
+  Hongyu Gong.
+\newblock An empirical study of speech language models for prompt-conditioned
+  speech synthesis, 2024.
+
+\bibitem{chiang2025audioawarelargelanguagemodelsasjudgesspe}
+Cheng-Han Chiang, Xiaofei Wang, Chung-Ching Lin, Kevin Lin, Linjie Li, Radu
+  Kopetz, Yao Qian, Zhendong Wang, Zhengyuan Yang, Hung yi~Lee, and Lijuan
+  Wang.
+\newblock Audio-aware large language models as judges for speaking styles,
+  2025.
+
+\bibitem{gong2024seamlessexpressivelmspeechlanguagemodele}
+Hongyu Gong and Bandhav Veluri.
+\newblock Seamlessexpressivelm: Speech language model for expressive
+  speech-to-speech translation with chain-of-thought, 2024.
+
+\bibitem{sun2025llasofoundationalframeworkreproduciblere}
+Yirong Sun, Yizhong Geng, Peidong Wei, Yanjun Chen, Jinghan Yang, Rongfei Chen,
+  Wei Zhang, and Xiaoyu Shen.
+\newblock Llaso: A foundational framework for reproducible research in large
+  language and speech model, 2025.
+
+\bibitem{li2025televaldynamicbenchmarkdesignedspokenlan}
+Zehan Li, Hongjie Chen, Yuxin Zhang, Jing Zhou, Xuening Wang, Hang Lv, Mengjie
+  Du, Yaodong Song, Jie Lian, Jian Kang, Jie Li, Yongxiang Li, Zhongjiang He,
+  and Xuelong Li.
+\newblock Televal: A dynamic benchmark designed for spoken language models in
+  chinese interactive scenarios, 2025.
+
+\bibitem{sheng2025syncspeechlowlatencyefficientdualstreamt}
+Zhengyan Sheng, Zhihao Du, Shiliang Zhang, Zhijie Yan, Yexin Yang, and Zhenhua
+  Ling.
+\newblock Syncspeech: Low-latency and efficient dual-stream text-to-speech
+  based on temporal masked transformer, 2025.
+
+\bibitem{ouyang2025cmusiwslt2025simultaneousspeechtranslati}
+Siqi Ouyang, Xi~Xu, and Lei Li.
+\newblock Cmu's iwslt 2025 simultaneous speech translation system, 2025.
+
+\bibitem{fang2025llamaomni2llmbasedrealtimespokenchatbota}
+Qingkai Fang, Yan Zhou, Shoutao Guo, Shaolei Zhang, and Yang Feng.
+\newblock Llama-omni2: Llm-based real-time spoken chatbot with autoregressive
+  streaming speech synthesis, 2025.
+
+\bibitem{dhawan2024codecasrtrainingperformantautomaticspeec}
+Kunal Dhawan, Nithin~Rao Koluguri, Ante Jukić, Ryan Langman, Jagadeesh Balam,
+  and Boris Ginsburg.
+\newblock Codec-asr: Training performant automatic speech recognition systems
+  with discrete speech representations, 2024.
+
+\bibitem{lu2025slideintegratingspeechlanguagemodelllmsp}
+Haitian Lu, Gaofeng Cheng, Liuping Luo, Leying Zhang, Yanmin Qian, and Pengyuan
+  Zhang.
+\newblock Slide: Integrating speech language model with llm for spontaneous
+  spoken dialogue generation, 2025.
+
+\bibitem{fu2024investigatingeffectslargescalepseudoster}
+Yu-Kuan Fu, Cheng-Kuang Lee, Hsiu-Hsuan Wang, and Hung yi~Lee.
+\newblock Investigating the effects of large-scale pseudo-stereo data and
+  different speech foundation model on dialogue generative spoken language
+  model, 2024.
+
+\bibitem{fu2025personalizedsociallyassistiverobotsendsp}
+Mengxue Fu, Zhonghao Shi, Minyu Huang, Siqi Liu, Mina Kian, Yirui Song, and
+  Maja~J. Matarić.
+\newblock Personalized socially assistive robots with end-to-end
+  speech-language models for well-being support, 2025.
+
+\bibitem{wang2025ntppgenerativespeechlanguagemodelingdual}
+Qichao Wang, Ziqiao Meng, Wenqian Cui, Yifei Zhang, Pengcheng Wu, Bingzhe Wu,
+  Irwin King, Liang Chen, and Peilin Zhao.
+\newblock Ntpp: Generative speech language modeling for dual-channel spoken
+  dialogue via next-token-pair prediction, 2025.
+
+\bibitem{guo2025fastlongspeechenhancinglargespeechlangua}
+Shoutao Guo, Shaolei Zhang, Qingkai Fang, Zhengrui Ma, Min Zhang, and Yang
+  Feng.
+\newblock Fastlongspeech: Enhancing large speech-language models for efficient
+  long-speech processing, 2025.
+
+\bibitem{park2023howgenerativespokenlanguagemodelingencod}
+Joonyong Park, Shinnosuke Takamichi, Tomohiko Nakamura, Kentaro Seki, Detai
+  Xin, and Hiroshi Saruwatari.
+\newblock How generative spoken language modeling encodes noisy speech:
+  Investigation from phonetics to syntactics, 2023.
+
+\bibitem{wang2025roleaudiovisualintegrationtimecoursephon}
+Yi~Wang, Oli~Danyi Liu, and Peter Bell.
+\newblock The role of audio-visual integration in the time course of phonetic
+  encoding in self-supervised speech models, 2025.
+
+\bibitem{zhu2024generativepretrainedspeechlanguagemodele}
+Yongxin Zhu, Dan Su, Liqiang He, Linli Xu, and Dong Yu.
+\newblock Generative pre-trained speech language model with efficient
+  hierarchical transformer, 2024.
+
+\bibitem{zhao2024advancingspeechlanguagemodelsscalingsupe}
+Shuaijiang Zhao, Tingwei Guo, Bajian Xiang, Tongtang Wan, Qiang Niu, Wei Zou,
+  and Xiangang Li.
+\newblock Advancing speech language models by scaling supervised fine-tuning
+  with over 60,000 hours of synthetic speech dialogue data, 2024.
+
+\bibitem{lin2025alignslmtextlessspokenlanguagemodelsrein}
+Guan-Ting Lin, Prashanth~Gurunath Shivakumar, Aditya Gourav, Yile Gu, Ankur
+  Gandhe, Hung yi~Lee, and Ivan Bulyko.
+\newblock Align-slm: Textless spoken language models with reinforcement
+  learning from ai feedback, 2025.
+
+\bibitem{entry2025augmentationinvariantdiscreterepresentat}
+Itai Gat, Felix Kreuk, Tu~Anh~Nguyen, Ann Lee, Jade Copet, Gabriel Synnaeve,
+  Emmanuel Dupoux, and Yossi Adi.
+\newblock Augmentation invariant discrete representation for generative spoken
+  language modeling.
+\newblock In {\em Proceedings of the 20th International Conference on Spoken
+  Language Translation (IWSLT 2023)}, page 465–477. Association for
+  Computational Linguistics, 2023.
+
+\bibitem{ma2025efficientspeechlanguagemodelingenergydis}
+Zhengrui Ma, Yang Feng, Chenze Shao, Fandong Meng, Jie Zhou, and Min Zhang.
+\newblock Efficient speech language modeling via energy distance in continuous
+  latent space, 2025.
+
+\bibitem{long2025vitaaudiofastinterleavedcrossmodaltokeng}
+Zuwei Long, Yunhang Shen, Chaoyou Fu, Heting Gao, Lijiang Li, Peixian Chen,
+  Mengdan Zhang, Hang Shao, Jian Li, Jinlong Peng, Haoyu Cao, Ke~Li, Rongrong
+  Ji, and Xing Sun.
+\newblock Vita-audio: Fast interleaved cross-modal token generation for
+  efficient large speech-language model, 2025.
+
+\bibitem{xue2025hhcodechighcompressionfidelitydiscretene}
+Rongkun Xue, Yazhe Niu, Shuai Hu, Zixin Yin, Yongqiang Yao, and Jing Yang.
+\newblock Hh-codec: High compression high-fidelity discrete neural codec for
+  spoken language modeling, 2025.
+
+\bibitem{kim2024enclapcombiningneuralaudiocodectextjoint}
+Jaeyeon Kim, Jaeyoon Jung, Jinjoo Lee, and Sang~Hoon Woo.
+\newblock Enclap: Combining neural audio codec and audio-text joint embedding
+  for automated audio captioning, 2024.
+
+\bibitem{wang2025ssrspeechtowardsstablesaferobustzeroshot}
+Helin Wang, Meng Yu, Jiarui Hai, Chen Chen, Yuchen Hu, Rilin Chen, Najim Dehak,
+  and Dong Yu.
+\newblock Ssr-speech: Towards stable, safe and robust zero-shot text-based
+  speech editing and synthesis, 2025.
+
+\bibitem{roll2025contextlearningboostsspeechrecognitionhu}
+Nathan Roll, Calbert Graham, Yuka Tatsumi, Kim~Tien Nguyen, Meghan Sumner, and
+  Dan Jurafsky.
+\newblock In-context learning boosts speech recognition via human-like
+  adaptation to speakers and language varieties, 2025.
+
+\bibitem{sicherman2023analysingdiscreteselfsupervisedspeechrep}
+Amitay Sicherman and Yossi Adi.
+\newblock Analysing discrete self supervised speech representation for spoken
+  language modeling, 2023.
+
+\bibitem{wang2025opens2sadvancingfullyopensourceendempath}
+Chen Wang, Tianyu Peng, Wen Yang, Yinan Bai, Guangfu Wang, Jun Lin, Lanpeng
+  Jia, Lingxiang Wu, Jinqiao Wang, Chengqing Zong, and Jiajun Zhang.
+\newblock Opens2s: Advancing fully open-source end-to-end empathetic large
+  speech language model, 2025.
+
+\end{thebibliography}

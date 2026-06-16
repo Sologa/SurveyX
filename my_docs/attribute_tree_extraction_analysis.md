@@ -1,0 +1,906 @@
+# SurveyX AttributeTree 構建階段深度分析
+
+> 本文檔詳細分析 SurveyX 系統中 AttributeTree（屬性樹）的提取流程，包含完整的程式碼流程、Agent 提示詞（含中文翻譯）以及設計原理。
+
+---
+
+## 目錄
+
+1. [概述與設計理念](#1-概述與設計理念)
+2. [整體流程架構](#2-整體流程架構)
+3. [第一步：論文類型分類](#3-第一步論文類型分類)
+4. [第二步：AttributeTree 提取](#4-第二步attributetree-提取)
+5. [四種論文類型的提示詞模板](#5-四種論文類型的提示詞模板)
+6. [程式碼實作細節](#6-程式碼實作細節)
+7. [AttributeTree 在後續流程中的應用](#7-attributetree-在後續流程中的應用)
+8. [設計優勢與限制](#8-設計優勢與限制)
+
+---
+
+## 1. 概述與設計理念
+
+### 1.1 為什麼需要 AttributeTree？
+
+根據 SurveyX 論文的描述：
+
+> 直接把**全文**餵給 LLM **低效**且**窗口利用率差**。受人類作者在寫綜述前**整理材料**的做法啟發，SurveyX 設計 **AttributeTree**。
+
+**核心設計理念**：
+- 為不同**文獻類型**預先設計不同的**屬性樹模板**
+- 以模板**高效抽取關鍵資訊**
+- 彙總所有文獻的屬性樹形成**屬性森林（Attribute Forest）**，作為後續 **RAG 檢索材料庫**
+
+### 1.2 AttributeTree 的定義
+
+**AttributeTree / 屬性樹**：對單篇文獻按固定 schema 抽取的高密度結構化資訊。
+
+**優勢**：
+1. **資訊密度提升**：從全文萃取關鍵資訊，去除冗餘
+2. **上下文窗口利用效率**：結構化資訊比原始文本更節省 token
+3. **類型針對性**：不同論文類型使用不同的提取模板
+4. **可檢索性**：JSON 格式便於後續 RAG 系統檢索
+
+---
+
+## 2. 整體流程架構
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    AttributeTree 構建流程                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌──────────────┐    ┌──────────────────┐    ┌───────────────┐ │
+│  │   PDF 文獻   │ -> │  Markdown 轉換   │ -> │ 載入論文資料  │ │
+│  └──────────────┘    └──────────────────┘    └───────────────┘ │
+│                                                      │          │
+│                                                      ▼          │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │  Step 1: 論文類型分類 (Paper Type Classification)          │ │
+│  │  ├─ 輸入：論文 Abstract                                     │ │
+│  │  ├─ 輸出：Method / Benchmark / Theory / Survey             │ │
+│  │  └─ Prompt: paper_type_classification.md                   │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                                │                                │
+│                                ▼                                │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │  Step 2: AttributeTree 提取                                │ │
+│  │  ├─ 根據論文類型選擇對應 prompt                             │ │
+│  │  │   ├─ Method  → attri_tree_for_method.md                 │ │
+│  │  │   ├─ Benchmark → attri_tree_for_benchmark.md            │ │
+│  │  │   ├─ Theory → attri_tree_for_theory.md                  │ │
+│  │  │   └─ Survey → attri_tree_for_survey.md                  │ │
+│  │  ├─ 輸入：論文全文 (md_text)                                │ │
+│  │  └─ 輸出：結構化 JSON (attri field)                        │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                                │                                │
+│                                ▼                                │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │  輸出：papers/*.json（每篇論文一個 JSON 文件）              │ │
+│  │  包含：title, abstract, md_text, paper_type, attri, ...    │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 3. 第一步：論文類型分類
+
+### 3.1 分類 Prompt（英文原文）
+
+**檔案路徑**：`resources/LLM/prompts/preprocessor/paper_type_classification.md`
+
+```markdown
+- Role: Academic Paper Classifier
+- Background: The user seeks to categorize a given paper abstract into one of four academic types: Method, Benchmark, Theory, or Survey. This requires an understanding of the key characteristics that define each type.
+- Profile: As an Academic Paper Classifier, you are equipped with the knowledge to discern the nature of scholarly work based on its abstract. You can identify the primary focus and contributions of the research presented.
+- Skills: You have the ability to analyze text for key indicators that suggest the type of academic work, such as the presence of a new method, the introduction of a benchmark, the development of theoretical frameworks, or a comprehensive survey of existing literature.
+- Goals: To accurately categorize the paper abstract into one of the four specified types based on its content.
+- Constrains: The output must be a single category (Method, Benchmark, Theory, or Survey) and should not include additional information or explanations.
+- OutputFormat: A single word representing the category (Method, Benchmark, Theory, Survey)
+- Workflow:
+  1. Read the provided abstract carefully.
+  2. Identify key_words and phrases that are indicative of the paper's focus.
+  3. Match the identified indicators with the characteristics of each category.
+  4. Determine the category that best fits the paper based on the abstract.
+  5. Output the category as a single word.
+- Criterion:
+  - Method: Papers that introduce a new approach, technique, or algorithm to solve a specific problem.
+  - Benchmark: Papers that present a new dataset, evaluation protocol, or performance standard used to measure the effectiveness of models or methods.
+  - Theory: Papers that develop new theoretical insights, frameworks, or principles that contribute to the understanding of a phenomenon or field.
+  - Survey: Papers that provide a comprehensive review or analysis of existing literature, research findings, or trends within a particular domain.
+```
+
+### 3.2 分類 Prompt（中文翻譯）
+
+```markdown
+- 角色：學術論文分類器
+- 背景：使用者希望將給定的論文摘要分類為四種學術類型之一：方法（Method）、基準（Benchmark）、理論（Theory）或綜述（Survey）。這需要理解定義每種類型的關鍵特徵。
+- 人設：作為學術論文分類器，你具備根據摘要辨識學術研究性質的知識。你能夠識別研究的主要重點和貢獻。
+- 技能：你具有分析文本以找出指示學術工作類型的關鍵指標的能力，例如新方法的出現、基準的引入、理論框架的開發或對現有文獻的全面調查。
+- 目標：根據內容準確地將論文摘要分類為四種指定類型之一。
+- 約束：輸出必須是單一類別（Method、Benchmark、Theory 或 Survey），不應包含額外資訊或解釋。
+- 輸出格式：表示類別的單一詞彙（Method、Benchmark、Theory、Survey）
+- 工作流程：
+  1. 仔細閱讀提供的摘要。
+  2. 識別指示論文重點的關鍵詞和短語。
+  3. 將識別的指標與每個類別的特徵進行匹配。
+  4. 根據摘要確定最適合論文的類別。
+  5. 輸出類別為單一詞彙。
+- 分類標準：
+  - Method（方法）：介紹新方法、技術或演算法來解決特定問題的論文。
+  - Benchmark（基準）：呈現新資料集、評估協議或用於衡量模型或方法有效性的效能標準的論文。
+  - Theory（理論）：開發新的理論見解、框架或原則，有助於理解某種現象或領域的論文。
+  - Survey（綜述）：提供對現有文獻、研究發現或特定領域趨勢的全面回顧或分析的論文。
+```
+
+### 3.3 分類範例
+
+**輸入**：
+```
+ABSTRACTClick-through rate (CTR) prediction is a critical problem in web search, 
+recommendation systems and online advertisement displaying. Learning good feature 
+interactions is essential to reflect user's preferences to items. Many CTR prediction 
+models based on deep learning have been proposed...
+```
+
+**輸出**：`Method`
+
+---
+
+## 4. 第二步：AttributeTree 提取
+
+根據論文類型，系統會選擇對應的提取模板。以下是四種類型的詳細分析。
+
+---
+
+## 5. 四種論文類型的提示詞模板
+
+### 5.1 Method 類論文（方法類）
+
+**檔案路徑**：`resources/LLM/prompts/preprocessor/attri_tree_for_method.md`
+
+#### 英文原文
+
+```markdown
+- Role: Scientific Literature Analyst
+- Background: The user requires a systematic extraction of key information from a scientific paper introducing a new method, focusing on clarity and precision.
+- Profile: As a Scientific Literature Analyst, you possess a deep understanding of academic writing and research methodologies. You are adept at identifying and summarizing complex information in a structured manner.
+- Skills: You have the ability to comprehend and dissect academic papers, extract critical details, and synthesize information into a coherent summary. Your skills include critical reading, analytical thinking, and structured reporting.
+- Goals: To accurately and efficiently extract the specified sections from the given scientific paper and present them in a clear, structured JSON format.
+- Constrains: The output must strictly adhere to the specified JSON format and include all the required sections without any omissions or additions.
+- Workflow:
+  1. Read and understand the given scientific paper.
+  2. Identify and extract the key information for each specified section.
+  3. Organize the extracted information into the prescribed JSON format.
+  4. Ensure that all sections are included and accurately reflect the content of the paper.
+- OutputFormat: JSON, only output the json content, WITHOUT ANYOTHER CHARACTER.
+- Key details need to be extracted:
+---
+### 1. **Background**  
+   - **Problem background**: This section provides an overview of the problem's context, including a discussion of the previous methods used to tackle it and highlighting why a new breakthrough is necessary to make further progress.
+
+### 2. **Problem**
+   - **Definition**: The problem definition should include a detailed and specific description of the issue that the paper aims to solve, ensuring clarity on the precise nature of the problem being addressed.
+   - **Key obstacle**: This part should elaborate on the main difficulty or challenge associated with the problem, describing the core obstacle that prevents existing methods from effectively solving it.
+
+### 3. **Idea**
+   - **Intuition**: The intuition behind the proposed idea should explain what inspired the idea, giving insights into the thought process or observations that led to its development.
+   - **Opinion**: This section should describe the proposed idea itself, summarizing what the idea entails and how it relates to solving the identified problem.
+   - **Innovation**: The innovation section should highlight the primary difference between the proposed method and existing approaches, emphasizing where the key improvements or advancements lie.
+
+### 4. **Method**
+   - **Method name**: The method name.
+   - **Method abbreviation**: The abbreviation of method name.
+   - **Method definition**: This part should provide a clear and precise definition of the method that directly addresses the given problem, explaining the approach in a straightforward manner.
+   - **Method description**: In one sentence, concisely describe the core of the method, giving a high-level overview that captures its essence.
+   - **Method steps**: This section should outline the procedures or steps involved in executing the method, offering a clear sequence of actions required to implement it.
+   - **Principle**: The principle should explain why this method is effective in solving the problem, providing a rationale or underlying theory that supports its success.
+
+### 5. **Experiments**
+   - **Evaluation setting**: This part should include details about the experimental setup, such as the dataset, baseline methods used for comparison, and other relevant experimental conditions.
+   - **Evaluation method**: The evaluation method should outline the specific steps taken to assess the performance of the method, detailing how the results were measured and analyzed.
+
+### 6. **Conclusion**
+   - The conclusion should summarize the outcomes of the experiments or the paper as a whole, drawing final insights about the effectiveness and contributions of the work.
+
+### 7. **Discussion**
+   - **Advantage**: This section should explain the key advantages of the proposed approach, outlining what makes it stand out compared to other methods.
+   - **Limitation**: The limitation section should discuss the shortcomings of the method, identifying areas where the approach may fall short or encounter challenges.
+   - **Future work**: Based on the advantages and limitations, this section should suggest areas for improvement, highlighting potential directions for future research or development.
+
+### 8. **Other info**
+   - Is there any other information not mentioned above? List any additional relevant details in key-value format to ensure a comprehensive understanding.
+---
+- Output Example:
+{
+   "background": "This paper addresses the issue of ...",
+   "problem": {
+      "definition": "",
+      "key obstacle": "",
+   },
+   "idea": {
+      "intuition": "",
+      "opinion": "",
+      "innovation": "",
+   },
+   "method": {
+      "method name": "",
+      "method abbreviation": "",
+      "method definition": "",
+      "method description": "",
+      "principle": "",
+   },
+   "experiments": {
+      "experiments setting": "",
+      "experiments progress" : "",
+   },
+   "conclusion": "",
+   "discussion": {
+      "advantage": "",
+      "limitation": "",
+      "future word": "",
+   },
+   "other info": [
+      "info1": "",
+      "info2": {
+         "info2.1": "",
+         "info2.2": "",
+         ...
+      }
+      ...
+   ]
+}
+---
+Now, here is the paper, output your answer.
+{paper}
+```
+
+#### 中文翻譯
+
+```markdown
+- 角色：科學文獻分析師
+- 背景：使用者需要從一篇介紹新方法的科學論文中系統性地提取關鍵資訊，注重清晰度和精確度。
+- 人設：作為科學文獻分析師，你對學術寫作和研究方法論有深入的理解。你擅長以結構化的方式識別和總結複雜資訊。
+- 技能：你具備理解和剖析學術論文、提取關鍵細節並將資訊綜合成連貫摘要的能力。你的技能包括批判性閱讀、分析思維和結構化報告。
+- 目標：準確高效地從給定的科學論文中提取指定部分，並以清晰、結構化的 JSON 格式呈現。
+- 約束：輸出必須嚴格遵守指定的 JSON 格式，並包含所有必需的部分，不得有任何遺漏或添加。
+- 工作流程：
+  1. 閱讀並理解給定的科學論文。
+  2. 識別並提取每個指定部分的關鍵資訊。
+  3. 將提取的資訊組織成規定的 JSON 格式。
+  4. 確保所有部分都被包含並準確反映論文內容。
+- 輸出格式：JSON，僅輸出 JSON 內容，不要有任何其他字元。
+- 需要提取的關鍵細節：
+---
+### 1. **背景（Background）**
+   - **問題背景**：本節提供問題背景的概述，包括討論先前用於解決該問題的方法，並強調為什麼需要新的突破才能取得進一步進展。
+
+### 2. **問題（Problem）**
+   - **定義**：問題定義應包含論文旨在解決的問題的詳細和具體描述，確保清楚說明所解決問題的確切性質。
+   - **關鍵障礙**：這部分應詳細說明與問題相關的主要困難或挑戰，描述阻止現有方法有效解決問題的核心障礙。
+
+### 3. **想法（Idea）**
+   - **直覺**：提出想法背後的直覺應解釋是什麼啟發了這個想法，讓人了解導致其開發的思維過程或觀察。
+   - **觀點**：本節應描述提出的想法本身，總結該想法的內涵及其如何與解決已識別的問題相關。
+   - **創新**：創新部分應強調提出的方法與現有方法之間的主要區別，強調關鍵改進或進展所在。
+
+### 4. **方法（Method）**
+   - **方法名稱**：方法的名稱。
+   - **方法縮寫**：方法名稱的縮寫。
+   - **方法定義**：這部分應提供直接解決給定問題的方法的清晰精確定義，以直接的方式解釋該方法。
+   - **方法描述**：用一句話簡潔描述方法的核心，提供捕捉其本質的高層概述。
+   - **方法步驟**：本節應概述執行該方法所涉及的程序或步驟，提供實施所需的清晰動作序列。
+   - **原理**：原理應解釋為什麼這個方法能有效解決問題，提供支持其成功的理由或基礎理論。
+
+### 5. **實驗（Experiments）**
+   - **評估設定**：這部分應包含實驗設置的詳細資訊，例如資料集、用於比較的基準方法以及其他相關實驗條件。
+   - **評估方法**：評估方法應概述評估方法性能所採取的具體步驟，詳細說明結果是如何測量和分析的。
+
+### 6. **結論（Conclusion）**
+   - 結論應總結實驗或整篇論文的結果，得出關於工作有效性和貢獻的最終見解。
+
+### 7. **討論（Discussion）**
+   - **優勢**：本節應解釋提出方法的關鍵優勢，概述與其他方法相比的突出之處。
+   - **局限性**：局限性部分應討論方法的不足之處，識別該方法可能不足或遇到挑戰的領域。
+   - **未來工作**：基於優勢和局限性，本節應建議改進領域，強調未來研究或開發的潛在方向。
+
+### 8. **其他資訊（Other info）**
+   - 是否有上述未提及的其他資訊？以鍵值格式列出任何額外的相關細節，以確保全面理解。
+```
+
+#### 輸出 JSON 結構
+
+```json
+{
+   "background": "本論文解決的問題是...",
+   "problem": {
+      "definition": "問題的具體定義",
+      "key obstacle": "主要障礙"
+   },
+   "idea": {
+      "intuition": "想法的直覺來源",
+      "opinion": "提出的觀點",
+      "innovation": "創新點"
+   },
+   "method": {
+      "method name": "方法名稱",
+      "method abbreviation": "方法縮寫",
+      "method definition": "方法定義",
+      "method description": "方法描述",
+      "principle": "原理"
+   },
+   "experiments": {
+      "experiments setting": "實驗設定",
+      "experiments progress": "實驗過程"
+   },
+   "conclusion": "結論",
+   "discussion": {
+      "advantage": "優勢",
+      "limitation": "局限性",
+      "future word": "未來工作"
+   },
+   "other info": [...]
+}
+```
+
+---
+
+### 5.2 Benchmark 類論文（基準類）
+
+**檔案路徑**：`resources/LLM/prompts/preprocessor/attri_tree_for_benchmark.md`
+
+#### 中文翻譯
+
+```markdown
+- 角色：基準分析專家
+- 背景：使用者需要從介紹基準的科學論文中提取關鍵資訊，重點關注基準的目的、它所解決的問題及其創新方面。
+- 人設：作為基準分析專家，你具有理解和評估科學基準結構和內容的專業知識。你擅長識別基準資料集、指標和實驗程序的細微差別。
+- 技能：你具備分析和總結複雜基準相關資訊的能力，包括理解資料集組成、評估指標和解讀實驗結果。
+- 目標：準確高效地從給定的科學論文中提取指定部分，並以清晰、結構化的 JSON 格式呈現。
+- 約束：輸出必須嚴格遵守指定的 JSON 格式，並包含所有必需的部分，不得有任何遺漏或添加。
+- 工作流程：
+  1. 閱讀並理解給定的科學論文。
+  2. 識別並提取每個指定部分的關鍵資訊。
+  3. 將提取的資訊組織成規定的 JSON 格式。
+  4. 確保所有部分都被包含並準確反映論文內容。
+
+需要提取的關鍵細節：
+---
+1. **背景（Background）**：
+   - **問題背景**：提供導致創建此基準的歷史背景或當前狀況。解釋為什麼需要這個基準以及它如何適應更廣泛的研究格局。
+   - **基準目的**：描述基準的預期用途。它是用於比較不同模型、測試特定假設還是推進特定研究領域？
+
+2. **問題（Problem）**：
+   - **定義**：清楚定義基準旨在解決的問題。基準要模擬或測量的具體任務或挑戰是什麼？
+   - **關鍵障礙**：識別現有基準的主要挑戰或限制。新基準旨在克服哪些問題？
+
+3. **想法（Idea）**：
+   - **直覺**：解釋創建基準背後的思維過程或靈感。哪些現有問題或觀察導致了這個新基準的開發？
+   - **觀點**：分享作者對基準重要性及其對該領域潛在影響的看法。
+   - **創新**：突出基準的新穎方面。它與以前的基準有何不同，提供了哪些改進？
+   - **基準縮寫**：基準名稱的縮寫。
+
+4. **資料集（Dataset）**：
+   - **來源**：解釋資料集是如何創建或來源的。是從真實世界資料收集、合成生成還是兩者的組合？
+   - **描述**：提供資料集的詳細資訊，包括其大小、分佈方式以及使其適合基準的任何獨特特徵。
+   - **內容**：列出資料集中包含的資料類型，如文本、圖像、音訊或其他形式的資料，以及它們如何與被基準測試的問題相關。
+   - **大小**：基準中包含的資料總量。如果提供的資訊未指定大小，返回 "-"。使用國際標準千位分隔符格式表示大小數字，使用逗號，如 1,000,000 或 4,754。只提供一個最終大小數字，不需要其他內容。
+   - **領域**：基準涵蓋的特定應用領域（例如，數學、程式設計）。只提取一個主要領域。提取的領域應足夠具體而不是過於寬泛。例如，"自然語言處理"、"人工智慧"或"機器學習"等領域過於寬泛，而"數學"或"文本摘要"則足夠具體。
+   - **任務格式**：基準中包含的特定任務類型（例如，問答、文本分類）。只提取一個主要任務類型。
+
+5. **指標（Metrics）**：
+   - **指標名稱**：基準中使用的評估指標（例如，準確率、F1 分數）。提取一到兩個主要指標。如果指標名稱有相應的縮寫，請使用縮寫。例如，對於"Mean Reciprocal Rank (MRR@10)"，輸出應為"MRR@10"。只提供兩個主要指標的名稱。
+   - **方面**：指定正在測量模型性能的哪些方面。是準確性、速度、資源使用還是其他？
+   - **原理**：描述選擇指標的理由。哪些理論或實際考慮指導了它們的選擇？
+   - **程序**：概述使用所選指標評估模型性能的步驟或方法。
+
+6. **實驗（Experiments）**：
+   - **模型**：識別在基準中測試的模型。它們是最先進的模型、基準模型還是兩者的混合？
+   - **程序**：詳細說明實驗設置，包括模型是如何訓練的、使用的參數以及任何其他實驗條件。
+   - **結果**：呈現實驗的結果。模型的表現如何，結果是否具有統計顯著性？
+   - **變異性**：討論結果中的變異性是如何處理的，例如通過多次試驗或資料集的不同子集。
+
+7. **結論（Conclusion）**：
+   - 總結實驗的主要發現和基準的意義。可以從結果中得出什麼結論？
+
+8. **討論（Discussion）**：
+   - **優勢**：討論基準的優勢及其對該領域的貢獻。
+   - **局限性**：識別基準的任何限制或潛在缺點，以及它們如何影響其使用或解讀。
+   - **未來工作**：根據當前基準的優勢和弱點，建議未來研究或開發的領域。
+
+9. **其他資訊（Other Info）**：
+   - 是否有上述未提及的其他資訊？以鍵值格式列出任何額外的相關細節，以確保全面理解。
+```
+
+#### 輸出 JSON 結構
+
+```json
+{
+   "background": "本論文解決的問題是...",
+   "problem": {
+      "definition": "",
+      "key obstacle": ""
+   },
+   "idea": {
+      "intuition": "",
+      "opinion": "",
+      "innovation": "",
+      "benchmark abbreviation": ""
+   },
+   "dataset": {
+      "source": "",
+      "desc": "",
+      "content": "",
+      "size": "",
+      "domain": "",
+      "task format": ""
+   },
+   "metrics": {
+      "metric name": "",
+      "aspect": "",
+      "principle": "",
+      "procedure": ""
+   },
+   "experiments": {
+      "model": "",
+      "procedure": "",
+      "result": "",
+      "variability": ""
+   },
+   "conclusion": "",
+   "discussion": {
+      "advantage": "",
+      "limitation": "",
+      "future word": ""
+   },
+   "other info": [...]
+}
+```
+
+---
+
+### 5.3 Survey 類論文（綜述類）
+
+**檔案路徑**：`resources/LLM/prompts/preprocessor/attri_tree_for_survey.md`
+
+#### 中文翻譯
+
+```markdown
+- 角色：綜述論文分析師
+- 背景：使用者需要從綜述論文中詳細提取關鍵資訊，重點關注綜述的目的、範圍、問題定義、架構觀點和結論。
+- 人設：作為綜述論文分析師，你是綜合和總結研究文獻全面回顧的專家。你有能力提煉綜述論文的精髓並識別其關鍵貢獻。
+- 技能：你具備分析綜述論文、提取關鍵資訊並以結構化格式總結發現的能力。你的技能包括批判性閱讀、分析思維和簡潔報告。
+- 目標：準確高效地從給定的綜述論文中提取指定部分，並以清晰、結構化的格式呈現。
+- 約束：輸出必須是包含所有必需部分的結構化摘要，不得有任何遺漏或添加。
+- 工作流程：
+  1. 閱讀並理解給定的綜述論文。
+  2. 識別並提取每個指定部分的關鍵資訊。
+  3. 將提取的資訊組織成規定的 JSON 格式。
+  4. 確保所有部分都被包含並準確反映論文內容。
+
+需要提取的關鍵細節：
+---
+1. **背景（Background）**：
+   - **目的**：解釋進行這項調查的理由。它旨在回答什麼問題或打算填補什麼知識空白？
+   - **範圍**：清楚定義調查的邊界。列出包含的主題和排除的主題，並解釋為什麼某些領域超出範圍。
+
+2. **問題（Problem）**：
+   - **定義**：提供調查所關注的問題或研究領域的精確描述。正在探索的核心問題是什麼？
+   - **關鍵障礙**：識別研究人員在這個領域面臨的主要挑戰或困難。進步的障礙是什麼？
+
+3. **架構（Architecture）**：
+   - **觀點**：描述調查引入的新穎觀點或框架。它如何分類或概念化現有研究？
+   - **領域/階段**：列出並解釋調查組織當前方法或研究的不同領域或階段。這種分類使用了什麼標準？
+
+4. **結論（Conclusion）**：
+   - **比較**：總結調查中進行的比較分析。不同的研究或方法在有效性、方法或結果方面如何比較？
+   - **結果**：呈現調查的總體結論或發現。讀者的主要收穫是什麼？
+
+5. **討論（Discussion）**：
+   - **優勢**：突出現有研究的優勢和好處。到目前為止取得了什麼成就，有什麼積極的方面？
+   - **局限性**：討論當前研究的弱點或限制。當前研究在哪些領域不足？
+   - **空白**：識別當前研究中的空白。哪些問題仍未回答或哪些領域需要進一步探索？
+   - **未來工作/趨勢**：根據討論的優勢和局限性，建議未來研究的潛在方向。正在出現什麼趨勢，研究人員應該把重點放在哪裡？
+
+6. **其他資訊（Other Info）**：
+   - 是否有上述未提及的其他資訊？以鍵值格式列出任何額外的相關細節，以確保全面理解。
+```
+
+#### 輸出 JSON 結構
+
+```json
+{
+   "background": "本論文解決的問題是...",
+   "problem": {
+      "definition": "",
+      "key obstacle": ""
+   },
+   "architecture": {
+      "perspective": "",
+      "stages": ""
+   },
+   "conclusion": {
+      "comparisions": "",
+      "results": ""
+   },
+   "discussion": {
+      "advantage": "",
+      "limitation": "",
+      "gaps": "",
+      "future work": ""
+   },
+   "other info": [...]
+}
+```
+
+---
+
+### 5.4 Theory 類論文（理論類）
+
+**檔案路徑**：`resources/LLM/prompts/preprocessor/attri_tree_for_theory.md`
+
+#### 中文翻譯
+
+```markdown
+- 角色：學術研究分析師
+- 背景：使用者需要從理論論文中系統性地提取關鍵資訊，這涉及對論文結構的深入理解和識別、總結關鍵元素的能力。
+- 人設：你是一位在理論研究方面具有豐富背景的經驗豐富的學術研究分析師。你有能力剖析複雜的論文，並以精確和清晰的方式提取最重要的觀點。
+- 技能：你的技能包括批判性閱讀、分析思維和簡潔總結資訊的能力。你擅長理解和解讀理論框架和實驗方法論。
+- 目標：提供包含所有指定元素的論文全面摘要：背景、問題定義、關鍵障礙、想法、理論觀點、證明、實驗、結論、討論以及任何其他相關資訊。
+- 約束：摘要必須準確、簡潔且結構清晰。輸出必須嚴格遵守指定的 JSON 格式，並包含所有必需的部分，不得有任何遺漏或添加。
+- 工作流程：
+  1. 閱讀並理解給定的科學論文。
+  2. 識別並提取每個指定部分的關鍵資訊。
+  3. 將提取的資訊組織成規定的 JSON 格式。
+  4. 確保所有部分都被包含並準確反映論文內容。
+
+需要提取的關鍵細節：
+---
+1. **背景（background）**：問題的重要性和背景。
+2. **問題（problem）**
+   a. 定義：問題的具體描述。
+   b. 關鍵障礙：主要困難、主要挑戰。
+3. **想法（idea）**
+   a. 直覺：想法是受什麼啟發的。
+   b. 觀點：這個想法是什麼。
+   c. 創新：與以前的方法相比主要區別是什麼，或者主要改進在哪裡。
+4. **理論（Theory）**
+   a. 觀點：理論的觀點和觀點的架構。
+   b. 主張：關於問題的觀點或假設。
+   c. 證明：理論的證明或推導。
+5. **實驗（experiments）**
+   a. 評估設定：包括資料集、基準等。
+   b. 評估方法：具體的評估步驟。
+6. **結論（conclusion）**：實驗/論文的結論是什麼。
+7. **討論（discuss）**
+   a. 優勢：這篇論文的優勢是什麼。
+   b. 局限性：這篇論文的缺點是什麼。
+   c. 未來工作：基於優缺點，未來可以在什麼地方改進。
+8. **其他資訊（other info）**：是否有上述未提及的其他資訊？以 JSON 格式列出。
+```
+
+#### 輸出 JSON 結構
+
+```json
+{
+   "background": "本論文解決的問題是...",
+   "problem": {
+      "definition": "",
+      "key obstacle": ""
+   },
+   "idea": {
+      "intuition": "",
+      "opinion": "",
+      "innovation": ""
+   },
+   "Theory": {
+      "perspective": "",
+      "opinion": "",
+      "proof": ""
+   },
+   "experiments": {
+      "experiments setting": "",
+      "experiments progress": ""
+   },
+   "conclusion": "",
+   "discussion": {
+      "advantage": "",
+      "limitation": "",
+      "future word": ""
+   },
+   "other info": [...]
+}
+```
+
+---
+
+## 6. 程式碼實作細節
+
+### 6.1 核心類：DataCleaner
+
+**檔案路徑**：`src/modules/preprocessor/data_cleaner.py`
+
+#### 6.1.1 論文類型分類流程
+
+```python
+def get_paper_type(self, chat_agent: ChatAgent):
+    """complete the paper type field with chatgpt."""
+    # load prompts
+    prompts_and_index = []
+    for i, paper in enumerate(self.papers):
+        abstract = paper["abstract"]
+        prompt = load_prompt(
+            f"{BASE_DIR}/resources/LLM/prompts/preprocessor/paper_type_classification.md",
+            abstract=abstract,
+        )
+        prompts_and_index.append([prompt, i])
+    
+    # batch_chat - 批次處理
+    cnt = 0
+    while prompts_and_index and cnt < 3:  # 最多重試3次
+        prompts = [x[0] for x in prompts_and_index]
+        res_l = self._safe_batch(chat_agent, prompts, desc="getting paper type...")
+        
+        # 過濾失敗的項目，準備重試
+        prompts_and_index = [
+            (prompt, paper_index)
+            for res, (prompt, paper_index) in zip(res_l, prompts_and_index)
+            if not (
+                isinstance(res, str)
+                and res.startswith(chat_agent.NonRetryToken)
+            ) and not self.__process_paper_type_response(res, paper_index)
+        ]
+        cnt += 1
+```
+
+**流程說明**：
+1. 為每篇論文的 abstract 生成分類 prompt
+2. 使用批次處理同時處理多個請求
+3. 處理回應，將論文分類為 method/benchmark/theory/survey
+4. 失敗的項目會自動重試（最多3次）
+
+#### 6.1.2 AttributeTree 提取流程
+
+```python
+def get_attri(self, chat_agent: ChatAgent):
+    """extract attribute tree from paper"""
+    # 獲取所有含 "md_text" 的文件並生成 prompts
+    prompts_and_index = []
+    for i, paper in enumerate(self.papers):
+        # 根據 paper_type 加載對應的 prompt
+        paper_type = paper["paper_type"].lower()
+        prompt = load_prompt(
+            f"{BASE_DIR}/resources/LLM/prompts/preprocessor/attri_tree_for_{paper_type}.md",
+            paper=paper["md_text"],
+        )
+        prompts_and_index.append([prompt, i])
+
+    # 批量處理 prompts
+    cnt = 0
+    while prompts_and_index and cnt < 3:
+        prompts = [x[0] for x in prompts_and_index]
+        res_l = self._safe_batch(
+            chat_agent, prompts, desc="getting attribute tree from paper......"
+        )
+
+        prompts_and_index = [
+            (prompt, paper_index)
+            for res, (prompt, paper_index) in zip(res_l, prompts_and_index)
+            if not (
+                isinstance(res, str)
+                and res.startswith(chat_agent.NonRetryToken)
+            ) and not self.__process_attri_response(res, paper_index)
+        ]
+        cnt += 1
+```
+
+**關鍵點**：
+1. **動態模板選擇**：根據 `paper_type` 選擇對應的 prompt 模板
+2. **全文輸入**：將論文的 `md_text`（Markdown 格式全文）作為輸入
+3. **JSON 解析**：將 LLM 回應解析為結構化的 `attri` 字段
+
+#### 6.1.3 回應處理
+
+```python
+def __process_attri_response(self, res: str, paper_index: int):
+    res = clean_chat_agent_format(content=res)
+    try:
+        res_dic = json.loads(res)
+        self.papers[paper_index]["attri"] = {**res_dic}
+        return True
+    except Exception as e:
+        logger.debug(
+            f"Failed to process {self.papers[paper_index]['title']}; The res: {res[:100]}; {e}"
+        )
+        return False
+```
+
+### 6.2 Prompt 載入工具
+
+**檔案路徑**：`src/models/LLM/utils.py`
+
+```python
+def load_prompt(file_path: Path, **kwargs):
+    """讀取 prompt 模板"""
+    if os.path.exists(file_path):
+        with open(file_path, encoding="utf-8") as f:
+            return f.read().format(**kwargs)
+    else:
+        logger.error(f"Prompt template not found at {file_path}")
+        return ""
+```
+
+**使用方式**：
+```python
+prompt = load_prompt(
+    "resources/LLM/prompts/preprocessor/attri_tree_for_method.md",
+    paper=paper["md_text"],  # {paper} 會被替換為實際內容
+)
+```
+
+### 6.3 批次處理機制
+
+**ChatAgent.batch_remote_chat** 使用多執行緒並行處理：
+
+```python
+def batch_remote_chat(
+    self,
+    prompt_l: list[str],
+    desc: str = "batch_chating...",
+    workers: int = CHAT_AGENT_WORKERS,
+    temperature: float = 0.5,
+) -> list[str]:
+    """開啟多執行緒進行對話"""
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        # 提交任務
+        future_l = []
+        for i in range(len(prompt_l)):
+            f = executor.submit(self.__remote_chat, i, prompt_l[i], temperature)
+            future_l.append(f)
+        
+        # 領取任務結果
+        res_l = ["no response"] * len(prompt_l)
+        for future in tqdm(as_completed(future_l), desc=desc, total=len(future_l)):
+            try:
+                i, resp = future.result()
+                res_l[i] = resp
+            except Exception as e:
+                # 錯誤處理...
+    return res_l
+```
+
+---
+
+## 7. AttributeTree 在後續流程中的應用
+
+### 7.1 大綱生成階段（Outline Generation）
+
+```python
+# outlines_generator.py
+def run(self):
+    # ...
+    # 2. Mount papers on outline - 將論文掛載到大綱
+    papers = self.load_papers(self.paper_path)
+    prompts = []
+    for paper in papers:
+        attri = json.dumps(paper["attri"], indent=4)  # 使用 attri 字段
+        prompt = load_prompt(
+            f"{BASE_DIR}/resources/LLM/prompts/outline_generator/mout_paper_on_plain_outline.md",
+            outlines=plain_outline,
+            paper=attri,
+        )
+```
+
+### 7.2 內容生成階段（Content Generation）
+
+```python
+# content_generator.py
+def mount_trees_on_outlines(self, trees_path: Path, outlines: Outlines, chat: ChatAgent):
+    """將每棵屬性樹掛載到多個大綱章節"""
+    papers = []
+    for file in os.listdir(trees_path):
+        paper_dic = json.loads(load_file_as_string(paper_path))
+        if "attri" in paper_dic:  # 只處理有 attri 的論文
+            papers.append(paper_dic)
+    
+    # 準備 prompts
+    for paper in papers:
+        prompt = load_prompt(
+            f"{BASE_DIR}/resources/LLM/prompts/content_generator/mount_tree_on_outlines.md",
+            outlines=str(outlines),
+            paper=json.dumps(paper["attri"], indent=4),
+        )
+```
+
+### 7.3 RAG 重寫階段（Post-refinement）
+
+屬性樹作為 RAG 檢索的資料來源，用於：
+- 從屬性森林中檢索相關證據
+- 重寫句子以補充準確引用
+- 剔除不相關引用，增強內容準確性
+
+---
+
+## 8. 設計優勢與限制
+
+### 8.1 設計優勢
+
+1. **類型特化**：針對不同論文類型設計專門的提取模板，確保提取的資訊具有針對性
+2. **結構化輸出**：JSON 格式便於後續處理和檢索
+3. **資訊壓縮**：從全文中提取關鍵資訊，顯著減少 token 消耗
+4. **可擴展性**：新增論文類型只需添加對應的 prompt 模板
+5. **批次處理**：多執行緒並行處理提升效率
+6. **容錯機制**：自動重試失敗的請求
+
+### 8.2 潛在限制
+
+1. **分類準確性**：論文類型分類依賴於摘要，可能存在誤判
+2. **資訊損失**：結構化提取可能遺漏某些非標準化的重要資訊
+3. **模板固定**：固定的 JSON schema 可能無法適應所有領域的論文
+4. **LLM 依賴**：提取品質高度依賴 LLM 的理解能力
+
+### 8.3 最佳實踐建議
+
+1. **品質檢查**：定期抽查生成的 AttributeTree 確保品質
+2. **模板迭代**：根據實際使用情況優化 prompt 模板
+3. **領域適配**：針對特定領域可以自定義增刪 schema 字段
+4. **錯誤日誌**：關注 JSON 解析失敗的案例，改進提取策略
+
+---
+
+## 附錄：完整流程示意
+
+```
+輸入：PDF 論文集合
+        │
+        ▼
+┌───────────────────┐
+│  PDF → Markdown   │  (docling 轉換)
+└───────────────────┘
+        │
+        ▼
+┌───────────────────┐
+│   載入論文資料    │  (DataCleaner.load_json_dir)
+│  - 補全標題       │
+│  - 補全摘要       │
+│  - 補全參考文獻   │
+└───────────────────┘
+        │
+        ▼
+┌───────────────────┐
+│  論文類型分類     │  (get_paper_type)
+│  ├─ Method        │
+│  ├─ Benchmark     │
+│  ├─ Theory        │
+│  └─ Survey        │
+└───────────────────┘
+        │
+        ▼
+┌───────────────────┐
+│ AttributeTree 提取│  (get_attri)
+│ 根據類型選擇模板  │
+│ 輸出結構化 JSON   │
+└───────────────────┘
+        │
+        ▼
+┌───────────────────┐
+│   保存論文資料    │  (save_papers)
+│  papers/*.json    │
+│  - title          │
+│  - abstract       │
+│  - md_text        │
+│  - paper_type     │
+│  - attri ←────────┼── AttributeTree!
+│  - bib_name       │
+│  - reference      │
+└───────────────────┘
+        │
+        ▼
+後續流程：大綱生成 → 內容生成 → 後期精修
+```
+
+---
+
+*文檔生成日期：2025-12-02*
+*分析來源：SurveyX 專案原始碼*

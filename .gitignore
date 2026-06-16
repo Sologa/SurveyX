@@ -52,6 +52,7 @@ parallel_directories
 backup
 backups
 .env
+model_config.yaml
 
 # Local references (keep example templates only)
 resources/offline_refs/*

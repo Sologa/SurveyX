@@ -1,0 +1,163 @@
+** figs/structure_fig:
+"compiled_output/survey.tex", line 59: Could not open "figs/structure_fig"
+"compiled_output/survey.tex", line 60: bad character in label "\label{subsec:Why now: From cascaded pipelines to unified end-to-end Speech Language Models}", see C.10.2
+"compiled_output/survey.tex", line 62: Whitespace before punctation mark in " ."
+"compiled_output/survey.tex", line 70: Whitespace before punctation mark in " ."
+"compiled_output/survey.tex", line 90: bad character in label "\label{subsec:Scope, contributions, and taxonomy}", see C.10.2
+"compiled_output/survey.tex", line 96: Whitespace before punctation mark in " ."
+"compiled_output/survey.tex", line 104: Whitespace before punctation mark in " ."
+"compiled_output/survey.tex", line 108: Whitespace before punctation mark in " ."
+"compiled_output/survey.tex", line 112: bad character in label "\label{subsec:The representation–latency–bitrate trilemma}", see C.10.2
+"compiled_output/survey.tex", line 118: Whitespace before punctation mark in " ."
+"compiled_output/survey.tex", line 134: Whitespace before punctation mark in " ."
+"compiled_output/survey.tex", line 138: Whitespace before punctation mark in " ."
+"compiled_output/survey.tex", line 142: bad character in label "\label{subsec:Survey roadmap}", see C.10.2
+"compiled_output/survey.tex", line 160: double space at " ~"
+"compiled_output/survey.tex", line 192: double space at " ~"
+"compiled_output/survey.tex", line 222: missing `\ ' after "vs."
+"compiled_output/survey.tex", line 228: missing `\ ' after "vs."
+"compiled_output/survey.tex", line 258: bad character in label "\label{sec:Background and Core Concepts}", see C.10.2
+"compiled_output/survey.tex", line 260: bad character in label "\label{subsec:From waveform to language model and back: pipeline and terminology}", see C.10.2
+"compiled_output/survey.tex", line 277: bad character in label "\label{subsec:Canonical building blocks and exemplars}", see C.10.2
+"compiled_output/survey.tex", line 286: bad character in label "\label{subsec:Token interfaces and their rates}", see C.10.2
+"compiled_output/survey.tex", line 301: bad character in label "\label{subsec:Datasets and evaluation families: a primer}", see C.10.2
+"compiled_output/survey.tex", line 328: bad character in label "\label{sec:Speech Tokenization and Neural Audio Codecs}", see C.10.2
+"compiled_output/survey.tex", line 333: bad character in label "\label{subsec:Tokenization objectives and interfaces: the LM-facing contract}", see C.10.2
+"compiled_output/survey.tex", line 340: bad character in label "\label{subsec:Quantization mechanisms and codec families}", see C.10.2
+"compiled_output/survey.tex", line 347: bad character in label "\label{subsec:From continuous features to units: discretization and codebook design}", see C.10.2
+"compiled_output/survey.tex", line 354: bad character in label "\label{subsec:Rate and sequence management}", see C.10.2
+** figs/tiny_tree_figure_0:
+"compiled_output/survey.tex", line 362: Could not open "figs/tiny_tree_figure_0"
+"compiled_output/survey.tex", line 363: bad character in label "\label{subsec:Disentanglement and mixed-token designs}", see C.10.2
+"compiled_output/survey.tex", line 370: bad character in label "\label{subsec:Continuous and codec-free interfaces}", see C.10.2
+"compiled_output/survey.tex", line 375: bad character in label "\label{subsec:Representative methods and empirical findings}", see C.10.2
+"compiled_output/survey.tex", line 382: bad character in label "\label{subsec:Comparative evaluation axes and open issues}", see C.10.2
+"compiled_output/survey.tex", line 417: bad character in label "\label{sec:Speech Encoders and Representations}", see C.10.2
+"compiled_output/survey.tex", line 419: bad character in label "\label{subsec:Encoder families and layer-wise specialization}", see C.10.2
+"compiled_output/survey.tex", line 434: bad character in label "\label{subsec:Fusion and representation selection}", see C.10.2
+"compiled_output/survey.tex", line 447: bad character in label "\label{subsec:Robustness, streaming, and deployment constraints}", see C.10.2
+"compiled_output/survey.tex", line 460: bad character in label "\label{subsec:Diagnosing representation quality}", see C.10.2
+** figs/tiny_tree_figure_1:
+"compiled_output/survey.tex", line 468: Could not open "figs/tiny_tree_figure_1"
+"compiled_output/survey.tex", line 469: bad character in label "\label{subsec:Discretization vs continuous conditioning}", see C.10.2
+"compiled_output/survey.tex", line 483: bad character in label "\label{subsec:Alignment challenges to text LLMs}", see C.10.2
+"compiled_output/survey.tex", line 512: bad character in label "\label{sec:Token to Speech Decoding and Vocoders}", see C.10.2
+"compiled_output/survey.tex", line 514: bad character in label "\label{subsec:Decoding targets and pathways}", see C.10.2
+** figs/tiny_tree_figure_2:
+"compiled_output/survey.tex", line 520: Could not open "figs/tiny_tree_figure_2"
+"compiled_output/survey.tex", line 521: bad character in label "\label{subsec:Objective families and decoder backbones}", see C.10.2
+"compiled_output/survey.tex", line 532: bad character in label "\label{subsec:Hybrid continuous–discrete approaches}", see C.10.2
+"compiled_output/survey.tex", line 539: bad character in label "\label{subsec:Conditioning, controllability, and style preservation}", see C.10.2
+"compiled_output/survey.tex", line 542: missing `\@' before `.' in "LM."
+"compiled_output/survey.tex", line 577: bad character in label "\label{sec:Language Modeling over Speech Tokens}", see C.10.2
+** figs/tree_figure_Langu:
+"compiled_output/survey.tex", line 579: Could not open "figs/tree_figure_Langu"
+"compiled_output/survey.tex", line 582: bad character in label "\label{subsec:Modeling objectives and architectures}", see C.10.2
+"compiled_output/survey.tex", line 589: bad character in label "\label{subsec:Modality transfer and LLM adaptation}", see C.10.2
+"compiled_output/survey.tex", line 600: bad character in label "\label{subsec:Interleaved and duplex modeling exemplars}", see C.10.2
+** figs/tiny_tree_figure_3:
+"compiled_output/survey.tex", line 608: Could not open "figs/tiny_tree_figure_3"
+"compiled_output/survey.tex", line 609: bad character in label "\label{subsec:Empirical regularities and scaling}", see C.10.2
+"compiled_output/survey.tex", line 612: double space at " ~"
+"compiled_output/survey.tex", line 612: double space at " ~"
+"compiled_output/survey.tex", line 612: double space at " ~"
+"compiled_output/survey.tex", line 636: bad character in label "\label{sec:Training Paradigms and Modality Alignment}", see C.10.2
+"compiled_output/survey.tex", line 639: bad character in label "\label{subsec:Multi-stage pipelines}", see C.10.2
+** figs/tiny_tree_figure_4:
+"compiled_output/survey.tex", line 647: Could not open "figs/tiny_tree_figure_4"
+"compiled_output/survey.tex", line 648: bad character in label "\label{subsec:Alignment mechanisms and blueprints}", see C.10.2
+"compiled_output/survey.tex", line 659: bad character in label "\label{subsec:Synthetic and programmatic supervision at scale}", see C.10.2
+"compiled_output/survey.tex", line 662: double space at " ~"
+"compiled_output/survey.tex", line 666: double space at " ~"
+"compiled_output/survey.tex", line 668: bad character in label "\label{subsec:Modality alignment, sequence compression, and interface consistency}", see C.10.2
+"compiled_output/survey.tex", line 673: bad character in label "\label{subsec:Diagnostics, ablations, and reporting}", see C.10.2
+"compiled_output/survey.tex", line 698: bad character in label "\label{sec:System Architectures and Generation Strategies}", see C.10.2
+"compiled_output/survey.tex", line 700: bad character in label "\label{subsec:Cascaded vs end-to-end vs interleaved}", see C.10.2
+** figs/tiny_tree_figure_5:
+"compiled_output/survey.tex", line 704: Could not open "figs/tiny_tree_figure_5"
+"compiled_output/survey.tex", line 705: bad character in label "\label{subsec:Generative regimes and efficient backbones}", see C.10.2
+"compiled_output/survey.tex", line 716: bad character in label "\label{subsec:Sequencing and scheduling taxonomy}", see C.10.2
+"compiled_output/survey.tex", line 729: bad character in label "\label{subsec:Textless S2S and two-branch designs}", see C.10.2
+"compiled_output/survey.tex", line 752: bad character in label "\label{sec:Expressivity Paralinguistics and Style Control}", see C.10.2
+"compiled_output/survey.tex", line 754: bad character in label "\label{subsec:Prosody, identity, and emotion modeling}", see C.10.2
+** figs/tiny_tree_figure_6:
+"compiled_output/survey.tex", line 771: Could not open "figs/tiny_tree_figure_6"
+"compiled_output/survey.tex", line 772: bad character in label "\label{subsec:Tokenization for expressivity}", see C.10.2
+"compiled_output/survey.tex", line 789: bad character in label "\label{subsec:Control interfaces and prompts}", see C.10.2
+"compiled_output/survey.tex", line 805: bad character in label "\label{subsec:Evaluation and watermarking}", see C.10.2
+"compiled_output/survey.tex", line 828: bad character in label "\label{sec:Real Time Streaming and Duplex Dialogue}", see C.10.2
+"compiled_output/survey.tex", line 834: bad character in label "\label{subsec:Latency-aware design}", see C.10.2
+"compiled_output/survey.tex", line 850: bad character in label "\label{subsec:Streaming policies for ASR/S2ST}", see C.10.2
+"compiled_output/survey.tex", line 868: bad character in label "\label{subsec:Duplex and turn-taking}", see C.10.2
+"compiled_output/survey.tex", line 884: bad character in label "\label{subsec:Architectures for streaming and duplex}", see C.10.2
+** figs/tiny_tree_figure_7:
+"compiled_output/survey.tex", line 897: Could not open "figs/tiny_tree_figure_7"
+"compiled_output/survey.tex", line 906: bad character in label "\label{sec:Datasets Benchmarks and Tasks}", see C.10.2
+"compiled_output/survey.tex", line 910: bad character in label "\label{subsec:Core corpora and data taxonomy}", see C.10.2
+"compiled_output/survey.tex", line 933: bad character in label "\label{subsec:Task–dataset–metric mapping}", see C.10.2
+"compiled_output/survey.tex", line 937: missing `\@' before `.' in "ASR."
+"compiled_output/survey.tex", line 939: missing `\@' before `.' in "ST."
+"compiled_output/survey.tex", line 960: bad character in label "\label{subsec:Benchmark suites and leaderboards}", see C.10.2
+** benchmark_table:
+"compiled_output/survey.tex", line 962: Could not open "benchmark_table"
+** benchmark_table:
+"compiled_output/survey.tex", line 964: Could not open "benchmark_table"
+** benchmark_table:
+"compiled_output/survey.tex", line 966: Could not open "benchmark_table"
+"compiled_output/survey.tex", line 968: perhaps you should insert a `~' before "\ref"
+"compiled_output/survey.tex", line 968: perhaps you should insert a `~' before "\ref"
+"compiled_output/survey.tex", line 968: perhaps you should insert a `~' before "\ref"
+** figs/tiny_tree_figure_8:
+"compiled_output/survey.tex", line 977: Could not open "figs/tiny_tree_figure_8"
+"compiled_output/survey.tex", line 981: bad character in label "\label{subsec:Multilinguality, robustness, and streaming}", see C.10.2
+"compiled_output/survey.tex", line 985: double space at " ~"
+"compiled_output/survey.tex", line 995: bad character in label "\label{subsec:Data quality and reproducibility}", see C.10.2
+"compiled_output/survey.tex", line 1025: bad character in label "\label{sec:Evaluation Metrics and Methodology}", see C.10.2
+"compiled_output/survey.tex", line 1027: bad character in label "\label{subsec:Metric taxonomy and selection by goal}", see C.10.2
+"compiled_output/survey.tex", line 1066: bad character in label "\label{subsec:End-to-end protocols}", see C.10.2
+"compiled_output/survey.tex", line 1110: bad character in label "\label{subsec:Bitrate- and token-rate–aware evaluation}", see C.10.2
+"compiled_output/survey.tex", line 1140: bad character in label "\label{subsec:Latency metrics and methodology}", see C.10.2
+** figs/tiny_tree_figure_9:
+"compiled_output/survey.tex", line 1164: Could not open "figs/tiny_tree_figure_9"
+"compiled_output/survey.tex", line 1165: bad character in label "\label{subsec:Human-in-the-loop and statistical rigor}", see C.10.2
+"compiled_output/survey.tex", line 1204: bad character in label "\label{sec:Efficiency Compression and Deployment}", see C.10.2
+"compiled_output/survey.tex", line 1206: bad character in label "\label{subsec:Parameter and training efficiency}", see C.10.2
+"compiled_output/survey.tex", line 1211: double space at " ~"
+"compiled_output/survey.tex", line 1222: bad character in label "\label{subsec:Model and sequence efficiency}", see C.10.2
+"compiled_output/survey.tex", line 1237: bad character in label "\label{subsec:Fast decoding and streaming}", see C.10.2
+"compiled_output/survey.tex", line 1246: bad character in label "\label{subsec:Bandwidth and edge–server trade-offs}", see C.10.2
+"compiled_output/survey.tex", line 1249: double space at " ~"
+"compiled_output/survey.tex", line 1261: bad character in label "\label{subsec:Implementation recipes and benchmarks}", see C.10.2
+** figs/tiny_tree_figure_10:
+"compiled_output/survey.tex", line 1290: Could not open "figs/tiny_tree_figure_10"
+"compiled_output/survey.tex", line 1296: bad character in label "\label{sec:Safety Robustness and Ethics}", see C.10.2
+"compiled_output/survey.tex", line 1298: bad character in label "\label{subsec:Threat models and vulnerabilities}", see C.10.2
+** figs/tiny_tree_figure_11:
+"compiled_output/survey.tex", line 1313: Could not open "figs/tiny_tree_figure_11"
+"compiled_output/survey.tex", line 1314: bad character in label "\label{subsec:Provenance, impersonation, and privacy}", see C.10.2
+"compiled_output/survey.tex", line 1321: bad character in label "\label{subsec:Robust and invariant representations}", see C.10.2
+"compiled_output/survey.tex", line 1332: bad character in label "\label{subsec:Fairness and evaluator bias}", see C.10.2
+"compiled_output/survey.tex", line 1346: bad character in label "\label{subsec:Reporting standards and red teaming}", see C.10.2
+"compiled_output/survey.tex", line 1369: bad character in label "\label{sec:Open Toolkits Frameworks and Reproducibility}", see C.10.2
+"compiled_output/survey.tex", line 1371: bad character in label "\label{subsec:5C overview: Code, Config, Compute, Corpora, Comparison}", see C.10.2
+"compiled_output/survey.tex", line 1372: missing `\@' before `.' in "AI."
+** figs/tiny_tree_figure_12:
+"compiled_output/survey.tex", line 1375: Could not open "figs/tiny_tree_figure_12"
+"compiled_output/survey.tex", line 1376: bad character in label "\label{subsec:Code: Open ecosystems and stacks}", see C.10.2
+"compiled_output/survey.tex", line 1379: bad character in label "\label{subsec:Config: Reusable building blocks}", see C.10.2
+"compiled_output/survey.tex", line 1387: double space at " ~"
+"compiled_output/survey.tex", line 1389: bad character in label "\label{subsec:Corpora: Curation and licensing}", see C.10.2
+"compiled_output/survey.tex", line 1397: bad character in label "\label{subsec:Comparison: Evaluation and testing}", see C.10.2
+"compiled_output/survey.tex", line 1405: bad character in label "\label{subsec:Compute: Budgets and resource table}", see C.10.2
+"compiled_output/survey.tex", line 1432: bad character in label "\label{sec:Open Challenges and Future Directions}", see C.10.2
+"compiled_output/survey.tex", line 1436: bad character in label "\label{subsec:Unified vs multi-stream tokens and disentanglement}", see C.10.2
+"compiled_output/survey.tex", line 1444: bad character in label "\label{subsec:Long context and conversational memory}", see C.10.2
+"compiled_output/survey.tex", line 1446: double space at " ~"
+** figs/tiny_tree_figure_13:
+"compiled_output/survey.tex", line 1451: Could not open "figs/tiny_tree_figure_13"
+"compiled_output/survey.tex", line 1452: bad character in label "\label{subsec:Low-resource and multilingual generalization}", see C.10.2
+"compiled_output/survey.tex", line 1460: bad character in label "\label{subsec:Alignment with text knowledge without forgetting}", see C.10.2
+"compiled_output/survey.tex", line 1466: bad character in label "\label{subsec:Toward a theory of rate vs capacity}", see C.10.2
+"compiled_output/survey.tex", line 1472: bad character in label "\label{subsec:Trade-offs and limitations}", see C.10.2
+"compiled_output/survey.tex", line 1500: bad character in label "\label{subsec:Key takeaways and recommendations}", see C.10.2
+"compiled_output/survey.tex", line 1560: bad character in label "\label{subsec:Community resources and standardization}", see C.10.2

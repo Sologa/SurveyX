@@ -9,29 +9,30 @@ BASE_DIR = FILE_PATH.parent
 
 from utils import remote_chat, load_file_as_string
 
-TOPICS = """In-context Learning
-Out-of-Distribution Detection
-Semi-Supervised Learning
-LLMs for Recommendation
-LLM-Generated Texts Detection
-Explainability for LLMs
-Evaluation of LLMs
-LLMs-based Agents
-LLMs in Medicine
-Domain Specialization of LLMs
-Challenges of LLMs in Education
-Alignment of LLMs
-ChatGPT
-Instruction Tuning for LLMs
-LLMs for Information Retrieval
-Safety in LLMs
-Chain of Thought
-Hallucination in LLMs
-Bias and Fairness in LLMs
-Large Multi-Modal Language Models
-Acceleration for LLMs
-LLMs for Software Engineering
-""".splitlines()
+# TOPICS = """In-context Learning
+# Out-of-Distribution Detection
+# Semi-Supervised Learning
+# LLMs for Recommendation
+# LLM-Generated Texts Detection
+# Explainability for LLMs
+# Evaluation of LLMs
+# LLMs-based Agents
+# LLMs in Medicine
+# Domain Specialization of LLMs
+# Challenges of LLMs in Education
+# Alignment of LLMs
+# ChatGPT
+# Instruction Tuning for LLMs
+# LLMs for Information Retrieval
+# Safety in LLMs
+# Chain of Thought
+# Hallucination in LLMs
+# Bias and Fairness in LLMs
+# Large Multi-Modal Language Models
+# Acceleration for LLMs
+# LLMs for Software Engineering
+# """.splitlines()
+TOPICS = ["survey"]
 
 svx_path = Path(f"{BASE_DIR}/data/svx")
 # print(remote_chat("hello"))
